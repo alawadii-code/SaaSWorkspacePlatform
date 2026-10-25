@@ -9,15 +9,21 @@ public sealed record LoginRequest(string Email, string Password);
 public sealed record RefreshRequest(string? RefreshToken);
 
 /// <summary>
-/// Tokens returned after authentication. The refresh token is also set as an
-/// HttpOnly cookie by the API; it is included in the body so non-browser
-/// clients can use the API too.
+/// Tokens returned after authentication.
 /// </summary>
+/// <remarks>
+/// The API always sets the refresh token as an HttpOnly, SameSite cookie,
+/// which keeps it out of reach of any script on the page. It appears in
+/// <see cref="RefreshToken"/> only when <c>Auth:ReturnRefreshTokenInBody</c>
+/// is enabled, for non-browser clients that cannot hold a cookie jar; the
+/// default is off, because a token readable from JavaScript is a token an XSS
+/// bug can steal.
+/// </remarks>
 public sealed record AuthResult(
     string AccessToken,
     string TokenType,
     int ExpiresInSeconds,
-    string RefreshToken,
+    string? RefreshToken,
     UserDto User);
 
 public sealed record UserDto(Guid Id, string Email, string DisplayName, DateTimeOffset CreatedAt);

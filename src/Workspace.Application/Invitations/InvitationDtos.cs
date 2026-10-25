@@ -6,6 +6,9 @@ namespace Workspace.Application.Invitations;
 
 public sealed record CreateInvitationRequest(string Email, OrganizationRole Role);
 
+/// <summary>Redeems an invitation for the signed-in caller.</summary>
+public sealed record AcceptInvitationRequest(string Token);
+
 public sealed record InvitationDto(
     Guid Id,
     string Email,
@@ -44,6 +47,15 @@ public sealed record AcceptInvitationResult(
 /// it exists at rest.
 /// </summary>
 public sealed record SendInvitationEmailPayload(Guid InvitationId, string Token);
+
+public sealed class AcceptInvitationRequestValidator : AbstractValidator<AcceptInvitationRequest>
+{
+    public AcceptInvitationRequestValidator() =>
+        RuleFor(x => x.Token)
+            .NotEmpty()
+            .MaximumLength(128)
+            .WithMessage("An invitation token is required.");
+}
 
 public sealed class CreateInvitationRequestValidator : AbstractValidator<CreateInvitationRequest>
 {
