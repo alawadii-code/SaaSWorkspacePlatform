@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Migration DDL travels with the assembly, so containers need no extra copy step. -->
+    <EmbeddedResource Include="Persistence/Migrations/Sql/*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Workspace.Application\Workspace.Application.csproj" />
     <ProjectReference Include="..\Workspace.Domain\Workspace.Domain.csproj" />
   </ItemGroup>

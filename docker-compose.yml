@@ -1,0 +1,130 @@
+name: workspace
+
+# Local development stack: database, cache, mail catcher, API, background
+# worker and the frontend behind nginx.
+#
+# Every value that differs between environments comes from .env (copy
+# .env.example). No secret is written in this file.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-workspace}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-workspace}
+    ports:
+      # Exposed so the integration tests can run against this database.
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-workspace} -d ${POSTGRES_DB:-workspace}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    # No persistence: the queue holds in-flight jobs, and invitation
+    # reconciliation recovers anything lost on restart.
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  mailpit:
+    # Catches every outgoing email and shows it at http://localhost:8025 —
+    # nothing leaves the machine during development.
+    image: axllent/mailpit:latest
+    ports:
+      - '${MAILPIT_UI_PORT:-8025}:8025'
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--spider', 'http://localhost:8025/readyz']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=${POSTGRES_DB:-workspace};Username=${POSTGRES_USER:-workspace};Password=${POSTGRES_PASSWORD}
+      Database__MigrateOnStartup: 'true'
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?set JWT_SIGNING_KEY in .env}
+      Jwt__Issuer: ${JWT_ISSUER:-workspace-api}
+      Jwt__Audience: ${JWT_AUDIENCE:-workspace-web}
+      Jwt__AccessTokenMinutes: ${JWT_ACCESS_TOKEN_MINUTES:-15}
+      Jwt__RefreshTokenDays: ${JWT_REFRESH_TOKEN_DAYS:-14}
+      # nginx serves the frontend and the API under one origin, so the cookie
+      # is first-party and no CORS origin needs allowing.
+      Auth__UseSecureCookies: ${AUTH_USE_SECURE_COOKIES:-false}
+      Queue__Provider: redis
+      Queue__ConnectionString: redis:6379
+      Invitations__AcceptUrlTemplate: ${INVITATION_ACCEPT_URL:-http://localhost:8080/invitations/accept?token={token}}
+      Smtp__Enabled: 'false'
+    ports:
+      - '${API_PORT:-5080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=${POSTGRES_DB:-workspace};Username=${POSTGRES_USER:-workspace};Password=${POSTGRES_PASSWORD}
+      # The worker never applies migrations: the API owns the schema, and two
+      # processes racing to migrate is a problem waiting to happen.
+      Database__MigrateOnStartup: 'false'
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      Queue__Provider: redis
+      Queue__ConnectionString: redis:6379
+      Smtp__Enabled: 'true'
+      Smtp__Host: mailpit
+      Smtp__Port: '1025'
+      Smtp__UseStartTls: 'false'
+      Smtp__FromAddress: ${SMTP_FROM_ADDRESS:-no-reply@workspace.local}
+      Smtp__FromName: ${SMTP_FROM_NAME:-Workspace}
+      Invitations__AcceptUrlTemplate: ${INVITATION_ACCEPT_URL:-http://localhost:8080/invitations/accept?token={token}}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mailpit:
+        condition: service_started
+      api:
+        # The API applies migrations, so the worker waits for it to be healthy.
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

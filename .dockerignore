@@ -1,0 +1,18 @@
+# Keep build context small and never ship local state or secrets into an image.
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/TestResults/
+.git/
+.github/
+.vs/
+.vscode/
+.idea/
+*.user
+.env
+.env.*
+!.env.example
+docs/
+README.md
+**/*.md
