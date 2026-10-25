@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Workspace.Api/Workspace.Api.csproj" />
+    <Project Path="src/Workspace.Application/Workspace.Application.csproj" />
+    <Project Path="src/Workspace.Domain/Workspace.Domain.csproj" />
+    <Project Path="src/Workspace.Infrastructure/Workspace.Infrastructure.csproj" />
+    <Project Path="src/Workspace.Worker/Workspace.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Workspace.IntegrationTests/Workspace.IntegrationTests.csproj" />
+    <Project Path="tests/Workspace.UnitTests/Workspace.UnitTests.csproj" />
+  </Folder>
+</Solution>

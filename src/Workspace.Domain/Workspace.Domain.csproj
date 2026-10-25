@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Domain layer: entities, enums, invariants and the RBAC permission matrix.
+    Deliberately has zero package references so authorization rules stay
+    unit-testable without a database, HTTP context or DI container.
+  -->
+
+</Project>

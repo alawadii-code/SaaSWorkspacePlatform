@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Workspace.Application\Workspace.Application.csproj" />
+    <ProjectReference Include="..\Workspace.Domain\Workspace.Domain.csproj" />
+    <ProjectReference Include="..\Workspace.Infrastructure\Workspace.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
