@@ -60,6 +60,14 @@ public interface IJobQueueConsumer
 
     /// <summary>Promotes scheduled messages whose run time has arrived.</summary>
     Task<int> PromoteScheduledAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns messages whose handler never acknowledged them — a worker that
+    /// crashed mid-job — to the ready queue once their visibility timeout has
+    /// passed. This is what makes delivery at-least-once rather than
+    /// at-most-once, and why handlers must be idempotent.
+    /// </summary>
+    Task<int> RecoverStuckAsync(CancellationToken cancellationToken = default);
 }
 
 /// <summary>Handles one job type.</summary>
