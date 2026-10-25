@@ -54,8 +54,8 @@ public sealed class TaskService(
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var term = $"%{search.Trim()}%";
-            query = query.Where(t => EF.Functions.ILike(t.Title, term));
+            var term = search.Trim().ToLowerInvariant();
+            query = query.Where(t => t.Title.ToLower().Contains(term));
         }
 
         return await query

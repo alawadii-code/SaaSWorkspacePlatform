@@ -38,11 +38,14 @@ public sealed class MembershipService(
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var term = $"%{search.Trim()}%";
+            // Lower-cased Contains translates to lower(...) LIKE '%term%'.
+            // Provider-agnostic on purpose: ILIKE would pull the Npgsql
+            // provider into the application layer for one query.
+            var term = search.Trim().ToLowerInvariant();
 
             query = query.Where(m =>
-                EF.Functions.ILike(m.User!.DisplayName, term) ||
-                EF.Functions.ILike(m.User!.Email, term));
+                m.User!.DisplayName.ToLower().Contains(term) ||
+                m.User!.Email.ToLower().Contains(term));
         }
 
         return await query

@@ -25,10 +25,7 @@ namespace Workspace.Api.Http;
 /// for probing other tenants' ids.
 /// </para>
 /// </remarks>
-public sealed class TenantResolutionFilter(
-    IWorkspaceDb db,
-    ITenantContextSetter tenantSetter,
-    ICurrentUser currentUser) : IEndpointFilter
+public sealed class TenantResolutionFilter : IEndpointFilter
 {
     public const string RouteParameterName = "organizationId";
 
@@ -36,6 +33,15 @@ public sealed class TenantResolutionFilter(
         EndpointFilterInvocationContext context,
         EndpointFilterDelegate next)
     {
+        // Resolved per request, not injected: minimal APIs construct an
+        // endpoint filter once, from the root provider, so a constructor
+        // parameter here would be a scoped service captured by a singleton —
+        // which the container rightly refuses.
+        var services = context.HttpContext.RequestServices;
+        var db = services.GetRequiredService<IWorkspaceDb>();
+        var tenantSetter = services.GetRequiredService<ITenantContextSetter>();
+        var currentUser = services.GetRequiredService<ICurrentUser>();
+
         var userId = currentUser.RequireUserId();
 
         if (!context.HttpContext.Request.RouteValues.TryGetValue(RouteParameterName, out var raw) ||
@@ -66,7 +72,7 @@ public sealed class TenantResolutionFilter(
 /// Validates a request body with its FluentValidation validator before the
 /// handler runs, so handlers never see malformed input.
 /// </summary>
-public sealed class ValidationFilter<TRequest>(IValidator<TRequest> validator) : IEndpointFilter
+public sealed class ValidationFilter<TRequest> : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
@@ -79,6 +85,9 @@ public sealed class ValidationFilter<TRequest>(IValidator<TRequest> validator) :
             throw new InvalidOperationException(
                 $"Endpoint declares validation for {typeof(TRequest).Name} but has no such argument.");
         }
+
+        // Resolved from the request scope for the same reason as above.
+        var validator = context.HttpContext.RequestServices.GetRequiredService<IValidator<TRequest>>();
 
         var result = await validator.ValidateAsync(request, context.HttpContext.RequestAborted);
 

@@ -138,7 +138,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
 /// what makes them realistic: the tenant guarantees are asserted with other
 /// tenants' data present.
 /// </summary>
-[CollectionDefinition(Name)]
+[CollectionDefinition(ApiCollection.Name)]
 public sealed class ApiCollection : ICollectionFixture<ApiFixture>
 {
     public const string Name = "api";

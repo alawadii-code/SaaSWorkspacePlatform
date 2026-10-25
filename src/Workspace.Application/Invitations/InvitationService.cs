@@ -61,8 +61,9 @@ public sealed class InvitationService(
         var email = User.Normalize(request.Email);
         var now = clock.UtcNow;
 
+        // No Include: EF translates the navigation into a join, and Include
+        // would be ignored by Any anyway.
         var alreadyMember = await db.Memberships
-            .Include(m => m.User)
             .AnyAsync(m => m.User!.NormalizedEmail == email, cancellationToken);
 
         if (alreadyMember)

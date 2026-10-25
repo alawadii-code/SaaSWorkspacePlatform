@@ -41,8 +41,8 @@ public sealed class ProjectService(
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var term = $"%{search.Trim()}%";
-            query = query.Where(p => EF.Functions.ILike(p.Name, term));
+            var term = search.Trim().ToLowerInvariant();
+            query = query.Where(p => p.Name.ToLower().Contains(term));
         }
 
         return await query
