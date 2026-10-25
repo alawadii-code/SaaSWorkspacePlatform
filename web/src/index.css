@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+/*
+  A small, deliberate palette: one warm neutral for surfaces, one accent, and
+  semantic colours for task state. Defined as theme tokens so the utility
+  classes used across the app stay consistent.
+*/
+@theme {
+  --color-surface: #fbfaf8;
+  --color-panel: #ffffff;
+  --color-line: #e7e3dd;
+  --color-ink: #1d2430;
+  --color-muted: #6a7382;
+  --color-accent: #2f5fdb;
+  --color-accent-soft: #eaf0ff;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible focus everywhere, for keyboard users. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
