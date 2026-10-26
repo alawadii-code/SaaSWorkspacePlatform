@@ -8,10 +8,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Application.Organizations;
 
-/// <summary>
-/// Tenant lifecycle: create an organization, read and rename the current one,
-/// and delete it.
-/// </summary>
+/// <summary>Tenant lifecycle: create an organization, read and rename the current one, and delete it.</summary>
 public sealed class OrganizationService(
     IWorkspaceDb db,
     ITenantContext tenant,
@@ -19,10 +16,7 @@ public sealed class OrganizationService(
     IAuditWriter audit,
     IClock clock)
 {
-    /// <summary>
-    /// Creates an organization and makes the caller its first owner. Any
-    /// authenticated user may do this; there is no tenant context yet.
-    /// </summary>
+    /// <summary>Creates an organization and makes the caller its first owner.</summary>
     public async Task<OrganizationDto> CreateAsync(
         CreateOrganizationRequest request,
         CancellationToken cancellationToken = default)
@@ -84,8 +78,6 @@ public sealed class OrganizationService(
             .FirstOrDefaultAsync(o => o.Id == organizationId, cancellationToken)
             ?? throw new NotFoundException("Organization");
 
-        // Counts come from tenant-filtered sets, so they cannot include other
-        // tenants' rows even if the filter were the only guard.
         var memberCount = await db.Memberships.CountAsync(cancellationToken);
         var projectCount = await db.Projects.CountAsync(cancellationToken);
 
@@ -138,23 +130,7 @@ public sealed class OrganizationService(
             organization.CreatedAt);
     }
 
-    /// <summary>
-    /// Deletes the organization and everything inside it.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Owners only, and the caller must echo the organization's slug in
-    /// <paramref name="confirmSlug"/> — an irreversible, whole-tenant
-    /// operation should not be reachable by a mistyped URL.
-    /// </para>
-    /// <para>
-    /// Trade-off: this is a hard delete, cascading to memberships, invitations,
-    /// projects and tasks. A production system would soft-delete with a
-    /// retention window so an accidental deletion can be undone. Audit rows
-    /// deliberately survive: they hold the organization id as plain data with
-    /// no foreign key, so the record that the tenant was deleted outlives it.
-    /// </para>
-    /// </remarks>
+    /// <summary>Deletes the organization and everything inside it.</summary>
     public async Task DeleteAsync(string? confirmSlug, CancellationToken cancellationToken = default)
     {
         tenant.Require(Permission.OrganizationDelete);
@@ -183,11 +159,7 @@ public sealed class OrganizationService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Produces a slug that is free at the time of writing; the unique index on
-    /// <c>organizations.slug</c> is what actually guarantees uniqueness, and a
-    /// losing race surfaces as a 409 from the database error mapper.
-    /// </summary>
+    /// <summary>Produces a slug that is free at the time of writing; the unique index on <c>organizations.slug</c> is what actually guarantees uniqueness, and a losing race surfaces as a 409 from the database error mapper.</summary>
     private async Task<string> GenerateUniqueSlugAsync(string name, CancellationToken cancellationToken)
     {
         var candidate = Slug.From(name);

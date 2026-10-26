@@ -8,17 +8,7 @@ public sealed record LoginRequest(string Email, string Password);
 
 public sealed record RefreshRequest(string? RefreshToken);
 
-/// <summary>
-/// Tokens returned after authentication.
-/// </summary>
-/// <remarks>
-/// The API always sets the refresh token as an HttpOnly, SameSite cookie,
-/// which keeps it out of reach of any script on the page. It appears in
-/// <see cref="RefreshToken"/> only when <c>Auth:ReturnRefreshTokenInBody</c>
-/// is enabled, for non-browser clients that cannot hold a cookie jar; the
-/// default is off, because a token readable from JavaScript is a token an XSS
-/// bug can steal.
-/// </remarks>
+/// <summary>Tokens returned after authentication.</summary>
 public sealed record AuthResult(
     string AccessToken,
     string TokenType,
@@ -37,9 +27,5 @@ public sealed record OrganizationMembershipDto(
     IReadOnlyList<string> Permissions,
     DateTimeOffset JoinedAt);
 
-/// <summary>
-/// Identity plus tenant list for the signed-in caller. The permission list is
-/// sent so the frontend can hide controls the caller cannot use; the server
-/// re-checks every request regardless.
-/// </summary>
+/// <summary>Identity plus tenant list for the signed-in caller.</summary>
 public sealed record MeResponse(UserDto User, IReadOnlyList<OrganizationMembershipDto> Organizations);

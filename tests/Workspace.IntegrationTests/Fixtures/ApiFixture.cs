@@ -10,29 +10,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests.Fixtures;
 
-/// <summary>
-/// Hosts the real API against a real PostgreSQL database.
-/// </summary>
-/// <remarks>
-/// <para>
-/// These are integration tests in the useful sense: the whole pipeline runs —
-/// JWT authentication, the tenant resolution filter, EF Core query filters,
-/// Postgres constraints and triggers. Substituting an in-memory database would
-/// silently drop exactly the guarantees worth testing (partial unique indexes,
-/// the composite foreign key, the audit immutability trigger).
-/// </para>
-/// <para>
-/// Each run creates a uniquely named database and drops it afterwards, so runs
-/// never collide and a failed run leaves nothing behind. The connection comes
-/// from <c>WORKSPACE_TEST_POSTGRES</c> — Docker Compose, CI services and a
-/// local server all work without code changes.
-/// </para>
-/// <para>
-/// Two components are swapped: the queue runs in memory so a test can inspect
-/// what was enqueued and run handlers deterministically, and email is captured
-/// rather than sent. Everything else is production code.
-/// </para>
-/// </remarks>
+/// <summary>Hosts the real API against a real PostgreSQL database.</summary>
 public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private const string DefaultAdminConnectionString =
@@ -67,8 +45,6 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
             Database = databaseName,
         }.ConnectionString;
 
-        // Touching the server builds the host, which applies migrations to the
-        // fresh database.
         _ = Server;
     }
 
@@ -114,8 +90,6 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
                 ["Queue:PollIntervalMs"] = "50",
                 ["Queue:VisibilityTimeoutSeconds"] = "60",
 
-                // Rate limits would make repeated sign-in attempts flaky; the
-                // limiter itself is still wired up, it just permits freely.
                 ["RateLimiting:Enabled"] = "false",
 
                 ["Smtp:Enabled"] = "false",
@@ -132,12 +106,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
     }
 }
 
-/// <summary>
-/// One database and one API host shared by every test class. Tests isolate
-/// themselves by creating their own users and organizations, which is also
-/// what makes them realistic: the tenant guarantees are asserted with other
-/// tenants' data present.
-/// </summary>
+/// <summary>One database and one API host shared by every test class.</summary>
 [CollectionDefinition(ApiCollection.Name)]
 public sealed class ApiCollection : ICollectionFixture<ApiFixture>
 {

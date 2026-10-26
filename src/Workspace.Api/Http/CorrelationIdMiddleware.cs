@@ -1,10 +1,6 @@
 namespace Workspace.Api.Http;
 
-/// <summary>
-/// Gives every request an id, echoes it back, and puts it in the log scope so
-/// one identifier ties together a client report, the server log and the audit
-/// rows the request produced.
-/// </summary>
+/// <summary>Gives every request an id, echoes it back, and puts it in the log scope so one identifier ties together a client report, the server log and the audit rows the request produced.</summary>
 public sealed class CorrelationIdMiddleware(RequestDelegate next, ILogger<CorrelationIdMiddleware> logger)
 {
     private const int MaxLength = 64;
@@ -25,11 +21,7 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next, ILogger<Correl
         await next(context);
     }
 
-    /// <summary>
-    /// Client-supplied ids are accepted so a frontend can trace a call end to
-    /// end, but only after being bounded and stripped of anything that could
-    /// forge a log line or a response header.
-    /// </summary>
+    /// <summary>Client-supplied ids are accepted so a frontend can trace a call end to end, but only after being bounded and stripped of anything that could forge a log line or a response header.</summary>
     private static string? Sanitize(string? candidate)
     {
         if (string.IsNullOrWhiteSpace(candidate))

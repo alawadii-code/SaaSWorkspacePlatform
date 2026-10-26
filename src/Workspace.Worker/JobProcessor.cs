@@ -3,22 +3,7 @@ using Workspace.Application.Common;
 
 namespace Workspace.Worker;
 
-/// <summary>
-/// Consumes the job queue: one scope per job, retry with backoff on failure,
-/// dead-letter once attempts are exhausted.
-/// </summary>
-/// <remarks>
-/// <para>
-/// A job is acknowledged only after its handler returns. Combined with the
-/// queue's visibility timeout that makes delivery at-least-once, so handlers
-/// must be idempotent — the invitation handler is, because it re-checks the
-/// invitation's status before sending.
-/// </para>
-/// <para>
-/// Each job runs in its own DI scope, so it gets a fresh DbContext: a tracked
-/// entity or a failed change from one job can never leak into the next.
-/// </para>
-/// </remarks>
+/// <summary>Consumes the job queue: one scope per job, retry with backoff on failure, dead-letter once attempts are exhausted.</summary>
 public sealed class JobProcessor(
     IJobQueueConsumer queue,
     IServiceScopeFactory scopeFactory,
@@ -50,8 +35,6 @@ public sealed class JobProcessor(
             }
             catch (Exception ex)
             {
-                // Queue-level failure (Redis down, for example). Back off and
-                // keep the worker alive rather than crash-looping the container.
                 logger.LogError(ex, "Job loop error; retrying in {Backoff}.", LoopErrorBackoff);
 
                 await Task.Delay(LoopErrorBackoff, stoppingToken);
@@ -71,8 +54,6 @@ public sealed class JobProcessor(
 
         if (handler is null)
         {
-            // Unknown type: retrying cannot help, so it goes straight to the
-            // dead-letter list where an operator can see it.
             await queue.DeadLetterAsync(message, $"No handler registered for job type '{message.Type}'.", cancellationToken);
             return;
         }
@@ -91,8 +72,6 @@ public sealed class JobProcessor(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            // Shutting down. Leave the job in the processing set; the
-            // visibility timeout returns it to the queue.
             throw;
         }
         catch (Exception ex)

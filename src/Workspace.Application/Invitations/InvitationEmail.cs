@@ -4,10 +4,7 @@ using Workspace.Domain.Authorization;
 
 namespace Workspace.Application.Invitations;
 
-/// <summary>
-/// Builds the invitation email. Pure, so the copy and the link are unit-tested
-/// without a mail server.
-/// </summary>
+/// <summary>Builds the invitation email.</summary>
 public static class InvitationEmail
 {
     public static EmailMessage Build(
@@ -31,9 +28,6 @@ public static class InvitationEmail
             If you were not expecting this invitation, you can ignore this email.
             """;
 
-        // Every interpolated value is HTML-encoded: an organization name or a
-        // display name is user-controlled input, and it must not be able to
-        // inject markup into mail sent to someone else.
         var encodedOrganization = HtmlEncoder.Default.Encode(organizationName);
         var encodedInviter = HtmlEncoder.Default.Encode(invitedByName);
         var encodedRole = HtmlEncoder.Default.Encode(RoleLabel(role));

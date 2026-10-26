@@ -100,10 +100,7 @@ public class AuthFlowTests(ApiFixture fixture)
         Assert.Equal(user.UserId, auth.User.Id);
     }
 
-    /// <summary>
-    /// A wrong password and an unknown address must be indistinguishable, or
-    /// the endpoint becomes an account-enumeration oracle.
-    /// </summary>
+    /// <summary>A wrong password and an unknown address must be indistinguishable, or the endpoint becomes an account-enumeration oracle.</summary>
     [Fact]
     public async Task Wrong_password_and_unknown_account_fail_identically()
     {
@@ -155,8 +152,6 @@ public class AuthFlowTests(ApiFixture fixture)
 
         Assert.NotEqual(first.RefreshToken, second!.RefreshToken);
 
-        // Replaying the rotated token is treated as theft: the chain is
-        // revoked, so even the newly issued token stops working.
         var replay = await client.PostAsJsonAsync(
             "/api/auth/refresh",
             new { refreshToken = first.RefreshToken },
@@ -238,11 +233,7 @@ public class AuthFlowTests(ApiFixture fixture)
         Assert.Equal(HttpStatusCode.Unauthorized, afterLogout.StatusCode);
     }
 
-    /// <summary>
-    /// Online guessing is blunted by a lockout, and the lockout is not
-    /// disclosed: the response stays the same generic 401 even once the right
-    /// password is supplied.
-    /// </summary>
+    /// <summary>Online guessing is blunted by a lockout, and the lockout is not disclosed: the response stays the same generic 401 even once the right password is supplied.</summary>
     [Fact]
     public async Task Repeated_failures_lock_the_account_without_saying_so()
     {
@@ -282,10 +273,7 @@ public class AuthFlowTests(ApiFixture fixture)
         Assert.False(string.IsNullOrWhiteSpace(values!.First()));
     }
 
-    /// <summary>
-    /// Removes the per-request correlation id so two error bodies can be
-    /// compared for everything that actually describes the failure.
-    /// </summary>
+    /// <summary>Removes the per-request correlation id so two error bodies can be compared for everything that actually describes the failure.</summary>
     private static string StripCorrelation(string body)
     {
         var index = body.IndexOf("\"correlationId\"", StringComparison.Ordinal);

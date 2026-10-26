@@ -24,10 +24,7 @@ public class PasswordPolicyTests
     public void Rejects_passwords_longer_than_the_maximum() =>
         Assert.Contains("at most", PasswordPolicy.Validate(new string('a', PasswordPolicy.MaxLength + 1))!);
 
-    /// <summary>
-    /// The length cap is a denial-of-service guard: hashing is deliberately
-    /// expensive, so unbounded input would let one request burn CPU.
-    /// </summary>
+    /// <summary>The length cap is a denial-of-service guard: hashing is deliberately expensive, so unbounded input would let one request burn CPU.</summary>
     [Fact]
     public void Accepts_a_password_at_exactly_the_maximum_length() =>
         Assert.Null(PasswordPolicy.Validate("vA" + new string('x', PasswordPolicy.MaxLength - 2)));
@@ -52,10 +49,7 @@ public class PasswordPolicyTests
     public void Rejects_a_password_containing_the_display_name() =>
         Assert.Contains("name", PasswordPolicy.Validate("mohamed-is-my-password", null, "Mohamed Al-Awadi")!);
 
-    /// <summary>
-    /// Short fragments must not false-positive: a two or three letter name
-    /// would otherwise reject almost every password that contains it.
-    /// </summary>
+    /// <summary>Short fragments must not false-positive: a two or three letter name would otherwise reject almost every password that contains it.</summary>
     [Fact]
     public void Short_name_fragments_do_not_reject_valid_passwords() =>
         Assert.Null(PasswordPolicy.Validate("thunderous valley crossing", "al@example.com", "Al B"));

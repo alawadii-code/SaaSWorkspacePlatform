@@ -10,10 +10,7 @@ public sealed record CreateTaskRequest(
     Guid? AssigneeUserId,
     DateTimeOffset? DueAt);
 
-/// <summary>
-/// Full replacement of a task's own fields. Assignment is a separate operation
-/// so that "field absent" and "clear the assignee" cannot be confused.
-/// </summary>
+/// <summary>Full replacement of a task's own fields.</summary>
 public sealed record UpdateTaskRequest(
     string Title,
     string? Description,

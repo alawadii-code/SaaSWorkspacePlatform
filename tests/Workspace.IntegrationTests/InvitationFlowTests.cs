@@ -13,11 +13,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests;
 
-/// <summary>
-/// The invitation lifecycle end to end, including the part that runs in the
-/// background: the API only queues the email, and the handler that sends it is
-/// executed here the way the worker would execute it.
-/// </summary>
+/// <summary>The invitation lifecycle end to end, including the part that runs in the background: the API only queues the email, and the handler that sends it is executed here the way the worker would execute it.</summary>
 [Collection(ApiCollection.Name)]
 public class InvitationFlowTests(ApiFixture fixture)
 {
@@ -102,11 +98,7 @@ public class InvitationFlowTests(ApiFixture fixture)
         Assert.Null(dto.DeliveryError);
     }
 
-    /// <summary>
-    /// A failing mail server must not lose the invitation: the handler records
-    /// the error, and the failure propagates so the worker's retry policy
-    /// decides what happens next.
-    /// </summary>
+    /// <summary>A failing mail server must not lose the invitation: the handler records the error, and the failure propagates so the worker's retry policy decides what happens next.</summary>
     [Fact]
     public async Task A_failed_send_is_recorded_and_surfaces_to_the_retry_policy()
     {
@@ -183,10 +175,7 @@ public class InvitationFlowTests(ApiFixture fixture)
         Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);
     }
 
-    /// <summary>
-    /// A forwarded invitation link must be useless to anyone but its
-    /// recipient, or one leaked email becomes tenant access.
-    /// </summary>
+    /// <summary>A forwarded invitation link must be useless to anyone but its recipient, or one leaked email becomes tenant access.</summary>
     [Fact]
     public async Task Another_account_cannot_redeem_someone_elses_invitation()
     {
@@ -276,8 +265,6 @@ public class InvitationFlowTests(ApiFixture fixture)
 
         Assert.Equal(HttpStatusCode.NoContent, revoke.StatusCode);
 
-        // The stored hash was rotated, so the token in the email no longer
-        // resolves to anything at all.
         var accept = await invitee.Client.PostAsJsonAsync(
             "/api/invitations/accept",
             new { token },
@@ -329,8 +316,6 @@ public class InvitationFlowTests(ApiFixture fixture)
         var invitee = await fixture.CreateUserAsync("invitee");
         var (invitationId, token) = await fixture.InviteAsync(owner, organizationId, invitee.Email);
 
-        // The API cannot create an expired invitation, so the clock is moved
-        // by ageing the row directly.
         await fixture.ExecuteDbAsync(async db =>
         {
             var invitation = await db.CrossTenant<Invitation>().FirstAsync(i => i.Id == invitationId);
@@ -404,8 +389,6 @@ public class InvitationFlowTests(ApiFixture fixture)
 
         Assert.Equal(HttpStatusCode.NoContent, leave.StatusCode);
 
-        // The partial unique index only covers pending invitations, so a
-        // second one is allowed once the first is no longer pending.
         var reinvite = await owner.Client.PostAsJsonAsync(
             $"/api/organizations/{organizationId}/invitations",
             new { email = invitee.Email, role = OrganizationRole.Viewer },

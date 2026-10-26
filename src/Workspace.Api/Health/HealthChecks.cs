@@ -5,11 +5,7 @@ using Workspace.Infrastructure.Persistence;
 
 namespace Workspace.Api.Health;
 
-/// <summary>
-/// Readiness check for Postgres. Liveness deliberately does not include this:
-/// an orchestrator should not restart a healthy API because the database is
-/// briefly unavailable, it should stop sending it traffic.
-/// </summary>
+/// <summary>Readiness check for Postgres.</summary>
 public sealed class DatabaseHealthCheck(WorkspaceDbContext db) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
@@ -29,11 +25,7 @@ public sealed class DatabaseHealthCheck(WorkspaceDbContext db) : IHealthCheck
     }
 }
 
-/// <summary>
-/// Readiness check for Redis. Degraded rather than unhealthy: with Redis down
-/// the API still serves every request, and invitation emails are reconciled
-/// once it returns.
-/// </summary>
+/// <summary>Readiness check for Redis.</summary>
 public sealed class RedisHealthCheck(IConnectionMultiplexer redis) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(

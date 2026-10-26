@@ -71,10 +71,7 @@ public static class InvitationEndpoints
         return group;
     }
 
-    /// <summary>
-    /// Redemption routes, which cannot be organization-scoped: the invitee has
-    /// a token precisely because they have no membership yet.
-    /// </summary>
+    /// <summary>Redemption routes, which cannot be organization-scoped: the invitee has a token precisely because they have no membership yet.</summary>
     public static RouteGroupBuilder MapInvitationRedemptionEndpoints(this RouteGroupBuilder api)
     {
         var group = api.MapGroup("/invitations").WithTags("Invitations");

@@ -9,13 +9,8 @@ interface LoaderState<T> {
 }
 
 /**
- * Minimal data-loading hook: fetch on mount and when dependencies change,
- * expose loading and error state, and allow an explicit reload after a
- * mutation.
- *
- * A data library would add caching and deduplication, which this app does not
- * need — every screen reads one or two endpoints — so the dependency is not
- * worth it here.
+ * Fetch on mount and when dependencies change, with loading and error state
+ * and an explicit reload for use after a mutation.
  */
 export function useLoader<T>(load: () => Promise<T>, deps: DependencyList): LoaderState<T> {
   const [data, setData] = useState<T | null>(null);

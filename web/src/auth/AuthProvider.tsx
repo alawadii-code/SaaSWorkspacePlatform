@@ -26,12 +26,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 /**
- * Holds the session.
- *
- * On startup it asks the API to refresh: the access token only ever lives in
- * memory, so a reload has nothing to restore from except the HttpOnly cookie.
- * That is the point — a token this code could read is a token an injected
- * script could read too.
+ * Holds the session. The access token lives in memory only, so a page reload
+ * restores the session by asking the API to refresh against the cookie.
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<SessionStatus>('loading');
@@ -136,11 +132,9 @@ export function useAuth(): AuthContextValue {
 }
 
 /**
- * The caller's membership in one organization, with a permission check.
- *
- * This decides what the UI offers, never what is allowed: the server
- * re-authorizes every request, so hiding a button is a courtesy and not a
- * security control.
+ * The caller's membership in one organization, with a permission check. This
+ * decides what the UI offers, not what is allowed: the server authorizes
+ * every request regardless.
  */
 export function useMembership(organizationId: string | undefined) {
   const { organizations } = useAuth();

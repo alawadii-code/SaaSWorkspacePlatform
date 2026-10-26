@@ -10,17 +10,10 @@ public sealed class AuthOptions
     [Required]
     public string RefreshCookieName { get; set; } = "workspace_rt";
 
-    /// <summary>
-    /// Marks the refresh cookie Secure. Only turned off for plain-HTTP local
-    /// development; startup refuses to run with it off in Production.
-    /// </summary>
+    /// <summary>Marks the refresh cookie Secure.</summary>
     public bool UseSecureCookies { get; set; } = true;
 
-    /// <summary>
-    /// Also return the refresh token in the response body. Off by default:
-    /// the cookie is unreadable by scripts, a body value is not. Useful for
-    /// curl and for native clients.
-    /// </summary>
+    /// <summary>Also return the refresh token in the response body.</summary>
     public bool ReturnRefreshTokenInBody { get; set; }
 
     /// <summary>Path the refresh cookie is scoped to.</summary>
@@ -34,12 +27,7 @@ public sealed class CorsOptions
 
     public const string PolicyName = "workspace-web";
 
-    /// <summary>
-    /// Explicit origins only — never a wildcard, because the API answers with
-    /// credentials (the refresh cookie). In Compose the frontend is served
-    /// through the same origin as the API, so this matters only for
-    /// <c>vite dev</c>.
-    /// </summary>
+    /// <summary>Explicit origins only — never a wildcard, because the API answers with credentials (the refresh cookie).</summary>
     public string[] AllowedOrigins { get; set; } = [];
 }
 

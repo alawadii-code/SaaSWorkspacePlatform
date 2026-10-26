@@ -8,10 +8,7 @@ namespace Workspace.Api.Endpoints;
 
 public static class OrganizationEndpoints
 {
-    /// <summary>
-    /// Maps the organization routes, and the tenant-scoped group every other
-    /// resource hangs off.
-    /// </summary>
+    /// <summary>Maps the organization routes, and the tenant-scoped group every other resource hangs off.</summary>
     public static RouteGroupBuilder MapOrganizationEndpoints(this RouteGroupBuilder api)
     {
         var unscopedGroup = api
@@ -42,11 +39,6 @@ public static class OrganizationEndpoints
             .WithSummary("Organizations the caller belongs to")
             .Produces<IReadOnlyList<OrganizationMembershipDto>>();
 
-        // Everything below is scoped to one organization. The tenant filter
-        // runs for every route in this group: it resolves the caller's
-        // membership, pins the tenant for the request (which is what drives
-        // the database query filters), and answers 404 when there is no
-        // membership — without confirming whether the organization exists.
         var scoped = api
             .MapGroup("/organizations/{organizationId:guid}")
             .RequireAuthorization()

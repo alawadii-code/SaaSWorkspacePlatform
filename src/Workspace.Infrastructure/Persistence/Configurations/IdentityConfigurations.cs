@@ -17,8 +17,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.DisplayName).HasMaxLength(80).IsRequired();
         builder.Property(u => u.PasswordHash).HasMaxLength(512).IsRequired();
 
-        // Case-insensitive uniqueness is enforced on the normalized column, so
-        // "A@example.com" cannot register alongside "a@example.com".
         builder.HasIndex(u => u.NormalizedEmail).IsUnique();
     }
 }

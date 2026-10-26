@@ -2,10 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Workspace.Application.Invitations;
 
-/// <summary>
-/// Invitation settings, bound from configuration and validated at startup so a
-/// misconfigured deployment fails immediately instead of sending broken links.
-/// </summary>
+/// <summary>Invitation settings, bound from configuration and validated at startup so a misconfigured deployment fails immediately instead of sending broken links.</summary>
 public sealed class InvitationOptions
 {
     public const string SectionName = "Invitations";
@@ -14,17 +11,11 @@ public sealed class InvitationOptions
     [Range(1, 90)]
     public int LifetimeDays { get; set; } = 7;
 
-    /// <summary>
-    /// Accept-link template; <c>{token}</c> is replaced with the plaintext
-    /// token. Points at the frontend, which posts the token back to the API.
-    /// </summary>
+    /// <summary>Accept-link template; <c>{token}</c> is replaced with the plaintext token.</summary>
     [Required]
     public string AcceptUrlTemplate { get; set; } = "http://localhost:5173/invitations/accept?token={token}";
 
-    /// <summary>
-    /// How long to wait before the worker treats an invitation whose email was
-    /// never queued as undelivered and retries it.
-    /// </summary>
+    /// <summary>How long to wait before the worker treats an invitation whose email was never queued as undelivered and retries it.</summary>
     [Range(10, 3600)]
     public int ReconcileAfterSeconds { get; set; } = 60;
 

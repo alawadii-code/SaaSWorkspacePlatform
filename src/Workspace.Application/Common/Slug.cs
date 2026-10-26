@@ -4,21 +4,12 @@ using System.Text;
 
 namespace Workspace.Application.Common;
 
-/// <summary>
-/// Turns display names into URL-safe handles. Pure and unit-tested: slugs end
-/// up in client routes, so surprises here are user-visible.
-/// </summary>
+/// <summary>Turns display names into URL-safe handles.</summary>
 public static class Slug
 {
     public const int MaxLength = 48;
 
-    /// <summary>
-    /// Produces a lower-case, hyphen-separated slug. Accents are stripped,
-    /// non-alphanumeric runs collapse to a single hyphen, and input that
-    /// contains nothing usable (for example a name written entirely in a
-    /// non-Latin script) falls back to a short random handle so creation never
-    /// fails on a legitimate name.
-    /// </summary>
+    /// <summary>Produces a lower-case, hyphen-separated slug.</summary>
     public static string From(string input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -56,10 +47,7 @@ public static class Slug
         return slug.Length == 0 ? RandomHandle() : slug;
     }
 
-    /// <summary>
-    /// Appends a short random suffix, used when the preferred slug is already
-    /// taken within its scope.
-    /// </summary>
+    /// <summary>Appends a short random suffix, used when the preferred slug is already taken within its scope.</summary>
     public static string WithSuffix(string slug, string suffix)
     {
         var trimmed = slug.Length + suffix.Length + 1 > MaxLength

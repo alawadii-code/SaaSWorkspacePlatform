@@ -4,11 +4,7 @@ using Xunit;
 
 namespace Workspace.UnitTests.Authorization;
 
-/// <summary>
-/// Membership rules are where privilege escalation and tenant lockout would
-/// live if they were going to happen, so each one gets a test for the failure
-/// it prevents.
-/// </summary>
+/// <summary>Membership rules are where privilege escalation and tenant lockout would live if they were going to happen, so each one gets a test for the failure it prevents.</summary>
 public class MembershipRulesTests
 {
     private static readonly Guid Actor = Guid.CreateVersion7();

@@ -6,10 +6,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests;
 
-/// <summary>
-/// The endpoints an operator or orchestrator depends on, plus the response
-/// hygiene every endpoint is expected to have.
-/// </summary>
+/// <summary>The endpoints an operator or orchestrator depends on, plus the response hygiene every endpoint is expected to have.</summary>
 [Collection(ApiCollection.Name)]
 public class OperationsTests(ApiFixture fixture)
 {
@@ -83,10 +80,7 @@ public class OperationsTests(ApiFixture fixture)
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    /// <summary>
-    /// Malformed JSON must come back as a problem document, not as an
-    /// unhandled exception with a stack trace.
-    /// </summary>
+    /// <summary>Malformed JSON must come back as a problem document, not as an unhandled exception with a stack trace.</summary>
     [Fact]
     public async Task Malformed_json_is_reported_as_a_bad_request()
     {

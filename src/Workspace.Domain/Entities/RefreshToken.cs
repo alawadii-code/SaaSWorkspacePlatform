@@ -2,16 +2,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Entities;
 
-/// <summary>
-/// A long-lived credential that mints new access tokens.
-/// </summary>
-/// <remarks>
-/// Stored as a SHA-256 hash of 256 bits of cryptographically random data, so
-/// the table cannot be used to impersonate anyone if it leaks. Tokens rotate on
-/// every use: the old row is revoked and points at its replacement. Presenting
-/// an already-rotated token means it was captured, so the whole chain is
-/// revoked and the session ends.
-/// </remarks>
+/// <summary>A long-lived credential that mints new access tokens.</summary>
 public class RefreshToken : Entity
 {
     public Guid UserId { get; set; }
@@ -29,10 +20,7 @@ public class RefreshToken : Entity
     /// <summary>Token that replaced this one, forming the rotation chain.</summary>
     public Guid? ReplacedByTokenId { get; set; }
 
-    /// <summary>
-    /// First token in the rotation chain. Lets the whole session be revoked in
-    /// one statement when a replayed token is detected.
-    /// </summary>
+    /// <summary>First token in the rotation chain.</summary>
     public Guid ChainId { get; set; }
 
     public string? CreatedByIp { get; set; }

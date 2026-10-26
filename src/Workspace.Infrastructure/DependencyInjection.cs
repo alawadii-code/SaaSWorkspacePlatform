@@ -16,15 +16,7 @@ namespace Workspace.Infrastructure;
 
 public static class DependencyInjection
 {
-    /// <summary>
-    /// Registers persistence, security, queue and mail implementations shared
-    /// by the API and the worker.
-    /// </summary>
-    /// <remarks>
-    /// Every options class is validated with <c>ValidateOnStart</c>, so a
-    /// deployment missing a signing key or a connection string fails at
-    /// startup with a clear message rather than at the first request.
-    /// </remarks>
+    /// <summary>Registers persistence, security, queue and mail implementations shared by the API and the worker.</summary>
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -68,13 +60,9 @@ public static class DependencyInjection
             {
                 npgsql.MigrationsAssembly(typeof(WorkspaceDbContext).Assembly.FullName);
 
-                // Absorbs the brief connection failures that happen when
-                // Postgres restarts or a container is still warming up.
                 npgsql.EnableRetryOnFailure(maxRetryCount: 3);
             }));
 
-        // The application layer sees only the narrow IWorkspaceDb surface;
-        // Infrastructure components that need the real context ask for it.
         services.AddScoped<IWorkspaceDb>(sp => sp.GetRequiredService<WorkspaceDbContext>());
 
         services.AddScoped<IAuditWriter, AuditWriter>();
@@ -82,8 +70,6 @@ public static class DependencyInjection
 
     private static void AddSecurity(IServiceCollection services)
     {
-        // One instance per request, written once by the tenant middleware and
-        // read by everything downstream.
         services.AddScoped<TenantContext>();
         services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
         services.AddScoped<ITenantContextSetter>(sp => sp.GetRequiredService<TenantContext>());
@@ -103,9 +89,6 @@ public static class DependencyInjection
             {
                 var redisConfiguration = ConfigurationOptions.Parse(queueOptions.ConnectionString);
 
-                // Start even when Redis is not up yet: enqueue failures are
-                // handled by invitation reconciliation, so a cold Redis delays
-                // email rather than breaking sign-up.
                 redisConfiguration.AbortOnConnectFail = false;
                 redisConfiguration.ConnectRetry = 5;
 

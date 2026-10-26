@@ -81,10 +81,7 @@ public class AuditLogTests(ApiFixture fixture)
         Assert.Contains(page.Items, item => item.Action == AuditActions.OrganizationCreated);
     }
 
-    /// <summary>
-    /// Sign-in events belong to an account, not a tenant, so they are recorded
-    /// for operators but must not appear in any organization's trail.
-    /// </summary>
+    /// <summary>Sign-in events belong to an account, not a tenant, so they are recorded for operators but must not appear in any organization's trail.</summary>
     [Fact]
     public async Task Account_level_events_are_not_exposed_to_tenant_admins()
     {
@@ -160,11 +157,7 @@ public class AuditLogTests(ApiFixture fixture)
         });
     }
 
-    /// <summary>
-    /// The database enforces the same rule, so bypassing the application layer
-    /// does not help: this is the guarantee that makes the trail evidence
-    /// rather than a convenience log.
-    /// </summary>
+    /// <summary>The database enforces the same rule, so bypassing the application layer does not help: this is the guarantee that makes the trail evidence rather than a convenience log.</summary>
     [Fact]
     public async Task The_database_rejects_updates_and_deletes_on_the_audit_table()
     {
@@ -192,10 +185,7 @@ public class AuditLogTests(ApiFixture fixture)
         });
     }
 
-    /// <summary>
-    /// Audit rows hold the organization id as plain data with no foreign key,
-    /// precisely so the record of a deletion outlives what was deleted.
-    /// </summary>
+    /// <summary>Audit rows hold the organization id as plain data with no foreign key, precisely so the record of a deletion outlives what was deleted.</summary>
     [Fact]
     public async Task The_trail_survives_deletion_of_the_organization()
     {

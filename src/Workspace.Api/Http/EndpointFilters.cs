@@ -8,23 +8,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Api.Http;
 
-/// <summary>
-/// Resolves which organization a request is acting on, and the caller's role
-/// in it, from the route and the authenticated user.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Applied to the whole <c>/api/organizations/{organizationId}</c> group, so
-/// no endpoint inside it can forget it. The role is read from the database on
-/// every request rather than taken from the token, which is what makes a role
-/// change or a removal take effect immediately.
-/// </para>
-/// <para>
-/// A caller with no membership gets 404, not 403. Answering "forbidden" would
-/// confirm that the organization exists, turning this endpoint into an oracle
-/// for probing other tenants' ids.
-/// </para>
-/// </remarks>
+/// <summary>Resolves which organization a request is acting on, and the caller's role in it, from the route and the authenticated user.</summary>
 public sealed class TenantResolutionFilter : IEndpointFilter
 {
     public const string RouteParameterName = "organizationId";
@@ -33,10 +17,6 @@ public sealed class TenantResolutionFilter : IEndpointFilter
         EndpointFilterInvocationContext context,
         EndpointFilterDelegate next)
     {
-        // Resolved per request, not injected: minimal APIs construct an
-        // endpoint filter once, from the root provider, so a constructor
-        // parameter here would be a scoped service captured by a singleton —
-        // which the container rightly refuses.
         var services = context.HttpContext.RequestServices;
         var db = services.GetRequiredService<IWorkspaceDb>();
         var tenantSetter = services.GetRequiredService<ITenantContextSetter>();
@@ -50,13 +30,12 @@ public sealed class TenantResolutionFilter : IEndpointFilter
             throw new NotFoundException("Organization");
         }
 
-        // Cross-tenant by necessity — this query is what establishes the
-        // tenant — and constrained to the caller's own user id.
         var role = await db.CrossTenant<Membership>()
             .Where(m => m.OrganizationId == organizationId && m.UserId == userId)
             .Select(m => (OrganizationRole?)m.Role)
             .FirstOrDefaultAsync(context.HttpContext.RequestAborted);
 
+        // 404 rather than 403: a 403 here would confirm that the organization exists.
         if (role is null)
         {
             throw new NotFoundException("Organization");
@@ -68,10 +47,7 @@ public sealed class TenantResolutionFilter : IEndpointFilter
     }
 }
 
-/// <summary>
-/// Validates a request body with its FluentValidation validator before the
-/// handler runs, so handlers never see malformed input.
-/// </summary>
+/// <summary>Validates a request body with its FluentValidation validator before the handler runs, so handlers never see malformed input.</summary>
 public sealed class ValidationFilter<TRequest> : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(
@@ -117,15 +93,7 @@ public sealed record RequiredPermissionMetadata(Permission Permission);
 
 public static class EndpointFilterExtensions
 {
-    /// <summary>
-    /// Requires a permission before the handler runs.
-    /// </summary>
-    /// <remarks>
-    /// The use-case service checks the same permission again. That duplication
-    /// is deliberate: the filter gives a cheap, uniform rejection at the edge,
-    /// and the service-level check means a new endpoint that forgets the
-    /// filter is still not an open door.
-    /// </remarks>
+    /// <summary>Requires a permission before the handler runs.</summary>
     public static RouteHandlerBuilder RequirePermission(
         this RouteHandlerBuilder builder,
         Permission permission) =>

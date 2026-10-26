@@ -2,22 +2,7 @@ using System.Collections.Frozen;
 
 namespace Workspace.Domain.Authorization;
 
-/// <summary>
-/// The single source of truth for what each role may do.
-/// </summary>
-/// <remarks>
-/// <para>
-/// This is a pure, dependency-free lookup: it is unit-tested directly, and the
-/// API's authorization filter is the only production caller. The frontend
-/// receives the caller's permission list purely to decide what to render —
-/// every request is authorized again on the server.
-/// </para>
-/// <para>
-/// Rules that depend on <em>who</em> the target is (an admin may not demote an
-/// owner; the last owner may not be removed) are not expressible in a static
-/// matrix and live in <see cref="MembershipRules"/>.
-/// </para>
-/// </remarks>
+/// <summary>The single source of truth for what each role may do.</summary>
 public static class RolePermissions
 {
     private static readonly Permission[] ViewerPermissions =
@@ -79,11 +64,7 @@ public static class RolePermissions
     public static bool Allows(OrganizationRole role, Permission permission) =>
         For(role).Contains(permission);
 
-    /// <summary>
-    /// Permission names for the API's <c>/me</c> payload, so the frontend can
-    /// hide controls the caller cannot use. Presentation only — not a security
-    /// boundary.
-    /// </summary>
+    /// <summary>Permission names for the API's <c>/me</c> payload, so the frontend can hide controls the caller cannot use.</summary>
     public static string[] NamesFor(OrganizationRole role) =>
         [.. For(role).Select(p => p.ToString()).Order(StringComparer.Ordinal)];
 }

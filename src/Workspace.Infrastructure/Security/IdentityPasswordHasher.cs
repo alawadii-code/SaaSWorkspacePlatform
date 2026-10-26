@@ -7,30 +7,10 @@ using IdentityVerificationResult = Microsoft.AspNetCore.Identity.PasswordVerific
 
 namespace Workspace.Infrastructure.Security;
 
-/// <summary>
-/// Password hashing on top of ASP.NET Core Identity's hasher.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Format "v3": PBKDF2-HMAC-SHA512, a 128-bit random salt per password, and an
-/// iteration count set below rather than left at the framework default.
-/// Verification is constant-time and the embedded parameters let stored hashes
-/// be upgraded later without invalidating anyone's password.
-/// </para>
-/// <para>
-/// Why not Argon2id, which is the stronger primitive: every .NET
-/// implementation of it is a third-party native dependency, while this one
-/// ships with the framework, is widely reviewed, and is an accepted OWASP
-/// option at this iteration count. Swapping it later is a change to this one
-/// class — <see cref="PasswordVerificationResult.SuccessRehashNeeded"/>
-/// already drives transparent re-hashing on next sign-in.
-/// </para>
-/// </remarks>
+/// <summary>Password hashing on top of ASP.NET Core Identity's hasher.</summary>
 public sealed class IdentityPasswordHasher : IPasswordHasher
 {
-    /// <summary>
-    /// OWASP's recommended minimum for PBKDF2-HMAC-SHA512 (2023 guidance).
-    /// </summary>
+    /// <summary>OWASP's recommended minimum for PBKDF2-HMAC-SHA512 (2023 guidance).</summary>
     public const int IterationCount = 210_000;
 
     private readonly PasswordHasher<User> hasher = new(

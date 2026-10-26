@@ -6,23 +6,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Api.Http;
 
-/// <summary>
-/// Turns exceptions into RFC 9457 problem responses.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Domain failures carry their own status and a stable <c>code</c> clients can
-/// branch on. Everything unrecognized becomes a 500 whose body says nothing
-/// beyond the correlation id: exception messages can contain connection
-/// strings, SQL and file paths, so they are logged, never returned. Only in
-/// Development is the detail included, to keep local debugging quick.
-/// </para>
-/// <para>
-/// Unique-constraint violations are mapped here rather than guarded with a
-/// pre-check in every service: an existence check followed by an insert is a
-/// race, and the database is the only place that can decide atomically.
-/// </para>
-/// </remarks>
+/// <summary>Turns exceptions into RFC 9457 problem responses.</summary>
 public sealed class AppExceptionHandler(
     IProblemDetailsService problemDetailsService,
     IHostEnvironment environment,
@@ -124,6 +108,7 @@ public sealed class AppExceptionHandler(
             environment.IsDevelopment() ? badRequest.Message : "The request could not be parsed.",
             httpContext),
 
+        // Exception text can carry connection strings, SQL and paths: log it, never return it.
         _ => Problem(
             StatusCodes.Status500InternalServerError,
             "internal_error",

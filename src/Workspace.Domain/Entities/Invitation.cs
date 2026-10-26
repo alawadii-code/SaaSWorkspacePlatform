@@ -3,14 +3,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Entities;
 
-/// <summary>
-/// A pending offer of membership, sent by email and redeemed with a token.
-/// </summary>
-/// <remarks>
-/// Only a SHA-256 hash of the token is stored. The plaintext exists in the
-/// invitation email and in the queued job payload; a database leak therefore
-/// does not let an attacker redeem outstanding invitations.
-/// </remarks>
+/// <summary>A pending offer of membership, sent by email and redeemed with a token.</summary>
 public class Invitation : Entity, ITenantOwned
 {
     public Guid OrganizationId { get; set; }
@@ -47,9 +40,7 @@ public class Invitation : Entity, ITenantOwned
 
     public User? InvitedByUser { get; set; }
 
-    /// <summary>
-    /// Whether the invitation can still be redeemed at <paramref name="now"/>.
-    /// </summary>
+    /// <summary>Whether the invitation can still be redeemed at <paramref name="now"/>.</summary>
     public bool IsRedeemable(DateTimeOffset now) =>
         Status == InvitationStatus.Pending && ExpiresAt > now;
 }

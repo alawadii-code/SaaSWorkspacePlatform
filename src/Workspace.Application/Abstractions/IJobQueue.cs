@@ -1,14 +1,6 @@
 namespace Workspace.Application.Abstractions;
 
-/// <summary>
-/// A unit of deferred work. <see cref="Payload"/> is JSON; <see cref="Type"/>
-/// selects the handler.
-/// </summary>
-/// <param name="Id">Stable id, carried through retries for log correlation.</param>
-/// <param name="Type">Handler key, from <see cref="JobTypes"/>.</param>
-/// <param name="Payload">JSON-serialized job arguments.</param>
-/// <param name="Attempt">Number of delivery attempts so far.</param>
-/// <param name="EnqueuedAt">When the job was first enqueued.</param>
+/// <summary>A unit of deferred work.</summary>
 public sealed record JobMessage(
     Guid Id,
     string Type,
@@ -37,13 +29,7 @@ public interface IJobQueue
     Task EnqueueAtAsync(JobMessage message, DateTimeOffset runAt, CancellationToken cancellationToken = default);
 }
 
-/// <summary>
-/// Consumer side, used by the worker.
-/// </summary>
-/// <remarks>
-/// Reliable handoff: a dequeued message is held in a processing list until it
-/// is acknowledged, so a worker that crashes mid-job does not lose it.
-/// </remarks>
+/// <summary>Consumer side, used by the worker.</summary>
 public interface IJobQueueConsumer
 {
     /// <summary>Blocks up to <paramref name="timeout"/> for the next message.</summary>
@@ -61,12 +47,7 @@ public interface IJobQueueConsumer
     /// <summary>Promotes scheduled messages whose run time has arrived.</summary>
     Task<int> PromoteScheduledAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Returns messages whose handler never acknowledged them — a worker that
-    /// crashed mid-job — to the ready queue once their visibility timeout has
-    /// passed. This is what makes delivery at-least-once rather than
-    /// at-most-once, and why handlers must be idempotent.
-    /// </summary>
+    /// <summary>Returns messages whose handler never acknowledged them — a worker that crashed mid-job — to the ready queue once their visibility timeout has passed.</summary>
     Task<int> RecoverStuckAsync(CancellationToken cancellationToken = default);
 }
 

@@ -31,8 +31,6 @@ public sealed class MembershipConfiguration : IEntityTypeConfiguration<Membershi
         // One membership per user per organization.
         builder.HasIndex(m => new { m.OrganizationId, m.UserId }).IsUnique();
 
-        // Supports "which organizations am I in?", the one cross-tenant read
-        // on this table.
         builder.HasIndex(m => m.UserId);
 
         builder.HasIndex(m => new { m.OrganizationId, m.Role });
@@ -66,9 +64,6 @@ public sealed class InvitationConfiguration : IEntityTypeConfiguration<Invitatio
 
         builder.HasIndex(i => new { i.OrganizationId, i.Status });
 
-        // At most one pending invitation per address per organization. A
-        // partial unique index expresses this without blocking a second
-        // invitation after the first is accepted, revoked or expires.
         builder.HasIndex(i => new { i.OrganizationId, i.Email })
             .IsUnique()
             .HasDatabaseName("ix_invitations_pending_per_email")

@@ -40,10 +40,7 @@ public class ProjectTaskTests(ApiFixture fixture)
         Assert.Equal(created.Id, fetched!.Id);
     }
 
-    /// <summary>
-    /// Slugs are unique per tenant, not globally: two organizations can both
-    /// have a project with the same name and the same handle.
-    /// </summary>
+    /// <summary>Slugs are unique per tenant, not globally: two organizations can both have a project with the same name and the same handle.</summary>
     [Fact]
     public async Task The_same_project_name_is_available_in_every_organization()
     {
@@ -171,8 +168,6 @@ public class ProjectTaskTests(ApiFixture fixture)
         Assert.Equal(TaskState.Done, done!.Status);
         Assert.NotNull(done.CompletedAt);
 
-        // Reopening clears it again: the timestamp is derived from status, not
-        // accepted from the client.
         var reopen = await owner.Client.PutAsJsonAsync(
             $"/api/organizations/{organizationId}/tasks/{taskId}",
             new
@@ -225,10 +220,7 @@ public class ProjectTaskTests(ApiFixture fixture)
         Assert.Null(unassigned!.AssigneeUserId);
     }
 
-    /// <summary>
-    /// Removing someone must not leave tasks pointing at a user who can no
-    /// longer see them.
-    /// </summary>
+    /// <summary>Removing someone must not leave tasks pointing at a user who can no longer see them.</summary>
     [Fact]
     public async Task Removing_a_member_clears_their_assignments()
     {

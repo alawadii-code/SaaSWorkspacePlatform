@@ -3,11 +3,7 @@ using Xunit;
 
 namespace Workspace.UnitTests.Authorization;
 
-/// <summary>
-/// The permission matrix is the authorization contract, so it is tested
-/// directly rather than only through the API: a change here that widens access
-/// should fail a test, not surface in a code review.
-/// </summary>
+/// <summary>The permission matrix is the authorization contract, so it is tested directly rather than only through the API: a change here that widens access should fail a test, not surface in a code review.</summary>
 public class RolePermissionsTests
 {
     [Theory]
@@ -51,10 +47,7 @@ public class RolePermissionsTests
     public void Role_does_not_grant_permission(OrganizationRole role, Permission permission) =>
         Assert.False(RolePermissions.Allows(role, permission));
 
-    /// <summary>
-    /// Each role is a superset of the one below it. Without this, a promotion
-    /// could silently take a capability away.
-    /// </summary>
+    /// <summary>Each role is a superset of the one below it.</summary>
     [Fact]
     public void Roles_are_cumulative()
     {
@@ -92,10 +85,7 @@ public class RolePermissionsTests
         Assert.Equal(all.Length, owner.Count);
     }
 
-    /// <summary>
-    /// An unmapped role value — a cast integer, or an enum member added
-    /// without a matrix entry — must grant nothing rather than everything.
-    /// </summary>
+    /// <summary>An unmapped role value — a cast integer, or an enum member added without a matrix entry — must grant nothing rather than everything.</summary>
     [Fact]
     public void Unknown_role_fails_closed()
     {

@@ -2,24 +2,10 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Authorization;
 
-/// <summary>
-/// Membership invariants that a static permission matrix cannot express,
-/// because they depend on the relationship between actor and target.
-/// </summary>
-/// <remarks>
-/// Pure functions, unit-tested exhaustively. They are enforced server-side in
-/// the membership and invitation services; the frontend only mirrors them.
-/// </remarks>
+/// <summary>Membership invariants that a static permission matrix cannot express, because they depend on the relationship between actor and target.</summary>
 public static class MembershipRules
 {
-    /// <summary>
-    /// Whether <paramref name="actorRole"/> may act on a membership currently
-    /// held at <paramref name="targetRole"/>.
-    /// </summary>
-    /// <remarks>
-    /// An admin may manage members, viewers and other admins, but not owners:
-    /// otherwise an admin could demote every owner and take over the tenant.
-    /// </remarks>
+    /// <summary>Whether <paramref name="actorRole"/> may act on a membership currently held at <paramref name="targetRole"/>.</summary>
     public static bool CanActOnMemberWithRole(OrganizationRole actorRole, OrganizationRole targetRole) =>
         actorRole switch
         {
@@ -28,11 +14,7 @@ public static class MembershipRules
             _ => false,
         };
 
-    /// <summary>
-    /// Whether <paramref name="actorRole"/> may grant <paramref name="roleToGrant"/>.
-    /// Only an owner can create another owner, so privilege can never be
-    /// escalated above the actor's own level.
-    /// </summary>
+    /// <summary>Whether <paramref name="actorRole"/> may grant <paramref name="roleToGrant"/>.</summary>
     public static bool CanGrantRole(OrganizationRole actorRole, OrganizationRole roleToGrant) =>
         actorRole switch
         {
@@ -41,18 +23,7 @@ public static class MembershipRules
             _ => false,
         };
 
-    /// <summary>
-    /// Throws unless the actor may change a membership from
-    /// <paramref name="currentRole"/> to <paramref name="newRole"/>.
-    /// </summary>
-    /// <param name="actorUserId">The user performing the change.</param>
-    /// <param name="targetUserId">The user whose membership is changing.</param>
-    /// <param name="actorRole">The actor's role in this organization.</param>
-    /// <param name="currentRole">The target's current role.</param>
-    /// <param name="newRole">The requested role.</param>
-    /// <param name="remainingOwnerCount">
-    /// How many owners the organization has, including the target.
-    /// </param>
+    /// <summary>Throws unless the actor may change a membership from <paramref name="currentRole"/> to <paramref name="newRole"/>.</summary>
     public static void EnsureCanChangeRole(
         Guid actorUserId,
         Guid targetUserId,
@@ -61,8 +32,6 @@ public static class MembershipRules
         OrganizationRole newRole,
         int remainingOwnerCount)
     {
-        // No self-service privilege changes, in either direction. An owner who
-        // wants to step down promotes someone else first.
         if (actorUserId == targetUserId)
         {
             throw new ForbiddenException("You cannot change your own role.");
@@ -86,9 +55,7 @@ public static class MembershipRules
         EnsureOrganizationKeepsAnOwner(currentRole, newRole, remainingOwnerCount);
     }
 
-    /// <summary>
-    /// Throws unless the actor may remove the target's membership.
-    /// </summary>
+    /// <summary>Throws unless the actor may remove the target's membership.</summary>
     public static void EnsureCanRemoveMember(
         Guid actorUserId,
         Guid targetUserId,
@@ -110,20 +77,11 @@ public static class MembershipRules
         EnsureOrganizationKeepsAnOwner(targetRole, null, remainingOwnerCount);
     }
 
-    /// <summary>
-    /// Throws unless the user may leave the organization. The last owner may
-    /// not leave, because an organization without an owner cannot be
-    /// administered or deleted by anyone.
-    /// </summary>
+    /// <summary>Throws unless the user may leave the organization.</summary>
     public static void EnsureCanLeave(OrganizationRole role, int remainingOwnerCount) =>
         EnsureOrganizationKeepsAnOwner(role, null, remainingOwnerCount);
 
-    /// <summary>
-    /// Core invariant: an organization always has at least one owner.
-    /// </summary>
-    /// <param name="currentRole">Role being changed or removed.</param>
-    /// <param name="newRole">New role, or <c>null</c> when the membership is going away.</param>
-    /// <param name="ownerCount">Owner count including the membership in question.</param>
+    /// <summary>Core invariant: an organization always has at least one owner.</summary>
     private static void EnsureOrganizationKeepsAnOwner(
         OrganizationRole currentRole,
         OrganizationRole? newRole,

@@ -21,11 +21,7 @@ public sealed record InvitationDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? AcceptedAt);
 
-/// <summary>
-/// What an invitee is shown before signing in, resolved from the token in
-/// their link. Carries no member list, project data or ids beyond what the
-/// accept screen needs.
-/// </summary>
+/// <summary>What an invitee is shown before signing in, resolved from the token in their link.</summary>
 public sealed record InvitationPreviewDto(
     string OrganizationName,
     string Email,
@@ -41,11 +37,7 @@ public sealed record AcceptInvitationResult(
     string OrganizationSlug,
     OrganizationRole Role);
 
-/// <summary>
-/// Queued job arguments. The plaintext token travels here because it is never
-/// stored: the database holds only its hash, so the email is the single place
-/// it exists at rest.
-/// </summary>
+/// <summary>Queued job arguments.</summary>
 public sealed record SendInvitationEmailPayload(Guid InvitationId, string Token);
 
 public sealed class AcceptInvitationRequestValidator : AbstractValidator<AcceptInvitationRequest>

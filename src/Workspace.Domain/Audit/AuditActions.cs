@@ -1,9 +1,6 @@
 namespace Workspace.Domain.Audit;
 
-/// <summary>
-/// Canonical audit action names. Constants rather than free-form strings so the
-/// trail stays queryable and typos cannot create a parallel vocabulary.
-/// </summary>
+/// <summary>Canonical audit action names.</summary>
 public static class AuditActions
 {
     public const string UserRegistered = "user.registered";

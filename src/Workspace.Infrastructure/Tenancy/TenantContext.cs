@@ -5,17 +5,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Infrastructure.Tenancy;
 
-/// <summary>
-/// Per-request tenant state. Registered scoped and populated once, by the
-/// API's tenant resolution middleware, from the authenticated user id plus a
-/// membership lookup.
-/// </summary>
-/// <remarks>
-/// The read interface is injected everywhere; the write interface is resolved
-/// only by the middleware. Request handlers therefore cannot change which
-/// organization they are operating in, and a second <see cref="Set"/> on an
-/// already-resolved context is a bug rather than a feature.
-/// </remarks>
+/// <summary>Per-request tenant state.</summary>
 public sealed class TenantContext : ITenantContext, ITenantContextSetter
 {
     public bool IsResolved { get; private set; }

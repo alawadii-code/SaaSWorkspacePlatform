@@ -4,22 +4,15 @@ namespace Workspace.Api.Endpoints;
 
 public static class EndpointRegistration
 {
-    /// <summary>
-    /// Maps every route. Reading this method top to bottom is meant to be the
-    /// fastest way to understand the API's shape.
-    /// </summary>
+    /// <summary>Maps every route.</summary>
     public static WebApplication MapWorkspaceEndpoints(this WebApplication app)
     {
         var api = app.MapGroup("/api");
 
         api.MapAuthEndpoints();
 
-        // Organization routes, plus the tenant-scoped group that members,
-        // invitations, projects, tasks and audit logs hang off.
         api.MapOrganizationEndpoints();
 
-        // Invitation redemption cannot live under an organization route: the
-        // invitee has no membership until they accept.
         api.MapInvitationRedemptionEndpoints();
 
         app.MapOperationalEndpoints();
@@ -29,8 +22,6 @@ public static class EndpointRegistration
 
     private static void MapOperationalEndpoints(this WebApplication app)
     {
-        // Liveness: is the process answering? Deliberately has no dependency
-        // checks, so a database blip cannot get a healthy API restarted.
         app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
             .WithTags("Operations")
             .WithSummary("Liveness probe")
@@ -83,11 +74,7 @@ public static class EndpointRegistration
             .AllowAnonymous();
     }
 
-    /// <summary>
-    /// A one-file API reference: Scalar rendering the generated OpenAPI
-    /// document. Loaded from a CDN rather than taking another NuGet
-    /// dependency, and this is the one response allowed a relaxed CSP.
-    /// </summary>
+    /// <summary>A one-file API reference: Scalar rendering the generated OpenAPI document.</summary>
     private const string ReferenceDocumentation =
         """
         <!doctype html>

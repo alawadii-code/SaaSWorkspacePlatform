@@ -10,15 +10,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Application.Tasks;
 
-/// <summary>
-/// Tasks within the organization resolved for this request.
-/// </summary>
-/// <remarks>
-/// Two authorization layers apply. The permission matrix decides whether the
-/// caller may write tasks at all; <see cref="EnsureCanMutate"/> then applies
-/// the row-level rule that a Member may only change tasks they created or are
-/// assigned to, while Admins and Owners may change any.
-/// </remarks>
+/// <summary>Tasks within the organization resolved for this request.</summary>
 public sealed class TaskService(
     IWorkspaceDb db,
     ITenantContext tenant,
@@ -84,8 +76,6 @@ public sealed class TaskService(
     {
         tenant.Require(Permission.TaskCreate);
 
-        // Tenant-filtered: a project id belonging to another organization does
-        // not resolve here, so a task cannot be created across tenants.
         var project = await db.Projects
             .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken)
             ?? throw new NotFoundException("Project");
@@ -153,8 +143,6 @@ public sealed class TaskService(
         {
             task.Status = request.Status;
 
-            // Completion timestamp is derived from the status, never accepted
-            // from the client.
             task.CompletedAt = request.Status == TaskState.Done ? now : null;
         }
 
@@ -229,11 +217,7 @@ public sealed class TaskService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Row-level write check: <c>TaskUpdateAny</c> allows editing every task,
-    /// <c>TaskUpdateOwn</c> only the caller's own. Phrased as "not found" for
-    /// neither, so the rule cannot be used to enumerate tasks.
-    /// </summary>
+    /// <summary>Row-level write check: <c>TaskUpdateAny</c> allows editing every task, <c>TaskUpdateOwn</c> only the caller's own.</summary>
     private void EnsureCanMutate(TaskItem task)
     {
         if (tenant.Has(Permission.TaskUpdateAny))
@@ -249,10 +233,7 @@ public sealed class TaskService(
         throw new ForbiddenException("You can only change tasks you created or that are assigned to you.");
     }
 
-    /// <summary>
-    /// An assignee must be a member of the same organization. The membership
-    /// set is tenant-filtered, so a user id from another tenant fails here.
-    /// </summary>
+    /// <summary>An assignee must be a member of the same organization.</summary>
     private async Task EnsureAssigneeIsMemberAsync(Guid assigneeUserId, CancellationToken cancellationToken)
     {
         var isMember = await db.Memberships
@@ -269,11 +250,7 @@ public sealed class TaskService(
     private static string? Normalize(string? description) =>
         string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
-    /// <summary>
-    /// Shared projection, so list and detail responses cannot drift apart.
-    /// Held as an expression tree so EF Core translates it to SQL and selects
-    /// only these columns instead of loading whole entity graphs.
-    /// </summary>
+    /// <summary>Shared projection, so list and detail responses cannot drift apart.</summary>
     private static readonly Expression<Func<TaskItem, TaskDto>> Projection =
         t => new TaskDto(
             t.Id,

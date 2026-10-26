@@ -5,11 +5,7 @@ using Workspace.Infrastructure.Persistence;
 
 namespace Workspace.Infrastructure.Audit;
 
-/// <summary>
-/// Writes audit entries into the same change tracker as the action being
-/// audited, so the caller's single <c>SaveChangesAsync</c> commits data and
-/// trail in one transaction.
-/// </summary>
+/// <summary>Writes audit entries into the same change tracker as the action being audited, so the caller's single <c>SaveChangesAsync</c> commits data and trail in one transaction.</summary>
 public sealed class AuditWriter(
     WorkspaceDbContext db,
     ITenantContext tenant,
@@ -64,11 +60,7 @@ public sealed class AuditWriter(
         });
     }
 
-    /// <summary>
-    /// Serializes metadata to a JSON object. Anything that fails to serialize
-    /// is dropped rather than allowed to fail the request it belongs to: an
-    /// audit entry with less context is better than a lost user action.
-    /// </summary>
+    /// <summary>Serializes metadata to a JSON object.</summary>
     private static string? Serialize(object? metadata)
     {
         if (metadata is null)

@@ -6,26 +6,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Infrastructure.Persistence;
 
-/// <summary>
-/// The application's single database context.
-/// </summary>
-/// <remarks>
-/// <para>
-/// <strong>Tenant isolation.</strong> Every entity that implements
-/// <see cref="ITenantOwned"/>, plus <see cref="AuditLog"/>, carries a global
-/// query filter pinned to the organization resolved for the current request.
-/// A query that forgets its own organization predicate still returns nothing
-/// from other tenants, and when no tenant has been resolved the filter matches
-/// <see cref="Guid.Empty"/>, which no row ever holds — it fails closed rather
-/// than open.
-/// </para>
-/// <para>
-/// <strong>Write-side guard.</strong> Query filters do not apply to inserts,
-/// so <see cref="SaveChangesAsync"/> additionally refuses to insert a
-/// tenant-owned row whose organization is not the resolved one. That turns a
-/// coding mistake into an immediate exception instead of a cross-tenant write.
-/// </para>
-/// </remarks>
+/// <summary>The application's single database context.</summary>
 public sealed class WorkspaceDbContext(
     DbContextOptions<WorkspaceDbContext> options,
     ITenantContext tenant)
@@ -47,10 +28,7 @@ public sealed class WorkspaceDbContext(
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
-    /// <summary>
-    /// Organization the filters are pinned to. <see cref="Guid.Empty"/> when no
-    /// membership has been resolved, which matches no row.
-    /// </summary>
+    /// <summary>Organization the filters are pinned to.</summary>
     private Guid CurrentOrganizationId => tenant.IsResolved ? tenant.OrganizationId : Guid.Empty;
 
     /// <inheritdoc />
@@ -61,15 +39,12 @@ public sealed class WorkspaceDbContext(
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(WorkspaceDbContext).Assembly);
 
-        // Tenant filters. Declared here rather than in each configuration so
-        // the whole isolation story is readable in one place.
+        // CurrentOrganizationId is Guid.Empty until a membership is resolved, so these filters fail closed.
         modelBuilder.Entity<Membership>().HasQueryFilter(e => e.OrganizationId == CurrentOrganizationId);
         modelBuilder.Entity<Invitation>().HasQueryFilter(e => e.OrganizationId == CurrentOrganizationId);
         modelBuilder.Entity<Project>().HasQueryFilter(e => e.OrganizationId == CurrentOrganizationId);
         modelBuilder.Entity<TaskItem>().HasQueryFilter(e => e.OrganizationId == CurrentOrganizationId);
 
-        // Account-level audit rows have no organization, so they never match a
-        // tenant-scoped read: only operators see them, in the server log.
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.OrganizationId == CurrentOrganizationId);
 
         ApplySnakeCaseNames(modelBuilder);
@@ -113,12 +88,7 @@ public sealed class WorkspaceDbContext(
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Refuses to insert a tenant-owned row into an organization other than
-    /// the resolved one. Skipped when no tenant is resolved, which is the case
-    /// for the flows that legitimately write across tenants: creating an
-    /// organization, and accepting an invitation.
-    /// </summary>
+    /// <summary>Refuses to insert a tenant-owned row into an organization other than the resolved one.</summary>
     private void GuardTenantOnInsert(Entity entity)
     {
         if (!tenant.IsResolved || entity is not ITenantOwned owned)
@@ -134,11 +104,7 @@ public sealed class WorkspaceDbContext(
         }
     }
 
-    /// <summary>
-    /// Application-level half of the audit guarantee: audit rows may be
-    /// inserted, never changed or removed. The database enforces the same rule
-    /// with a trigger, so bypassing EF does not help either.
-    /// </summary>
+    /// <summary>Application-level half of the audit guarantee: audit rows may be inserted, never changed or removed.</summary>
     private void GuardAuditImmutability()
     {
         var tampered = ChangeTracker.Entries<AuditLog>()
@@ -150,11 +116,7 @@ public sealed class WorkspaceDbContext(
         }
     }
 
-    /// <summary>
-    /// Maps CLR names to snake_case database names, so the schema reads
-    /// naturally in psql and in migration SQL. Done as a convention rather
-    /// than with a package so there is one less dependency to pin.
-    /// </summary>
+    /// <summary>Maps CLR names to snake_case database names, so the schema reads naturally in psql and in migration SQL.</summary>
     private static void ApplySnakeCaseNames(ModelBuilder modelBuilder)
     {
         foreach (var entity in modelBuilder.Model.GetEntityTypes())

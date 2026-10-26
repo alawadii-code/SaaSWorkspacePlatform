@@ -9,10 +9,7 @@ using Workspace.Infrastructure.Options;
 
 namespace Workspace.Infrastructure.Email;
 
-/// <summary>
-/// Sends mail over SMTP. Used by the worker, which can afford the latency and
-/// retries that an HTTP request cannot.
-/// </summary>
+/// <summary>Sends mail over SMTP.</summary>
 public sealed class SmtpEmailSender(
     IOptions<SmtpOptions> options,
     ILogger<SmtpEmailSender> logger) : IEmailSender
@@ -37,10 +34,6 @@ public sealed class SmtpEmailSender(
             Timeout = settings.TimeoutSeconds * 1000,
         };
 
-        // StartTlsWhenAvailable keeps the local Mailpit container (plain SMTP
-        // on a private network) working while opportunistically upgrading
-        // against a real provider. A production deployment should set
-        // UseStartTls and point at a host that offers it.
         var socketOptions = settings.UseStartTls
             ? SecureSocketOptions.StartTls
             : SecureSocketOptions.StartTlsWhenAvailable;
@@ -59,11 +52,7 @@ public sealed class SmtpEmailSender(
     }
 }
 
-/// <summary>
-/// Writes emails to the log instead of sending them. The default when SMTP is
-/// disabled, so tests and a plain <c>dotnet run</c> cannot deliver mail to a
-/// real address by accident.
-/// </summary>
+/// <summary>Writes emails to the log instead of sending them.</summary>
 public sealed class LoggingEmailSender(ILogger<LoggingEmailSender> logger) : IEmailSender
 {
     public Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)

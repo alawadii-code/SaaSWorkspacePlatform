@@ -15,11 +15,7 @@ namespace Workspace.Api;
 
 public static class ApiServices
 {
-    /// <summary>
-    /// The sample key shipped in <c>.env.example</c>. Startup refuses to use
-    /// it outside Development, so a deployment cannot accidentally sign tokens
-    /// with a value that is public in the repository.
-    /// </summary>
+    /// <summary>The sample key shipped in <c>.env.example</c>.</summary>
     public const string PlaceholderSigningKey = "replace-with-a-32-byte-minimum-random-secret";
 
     public static IServiceCollection AddApi(
@@ -42,19 +38,12 @@ public static class ApiServices
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, HttpCurrentUser>();
 
-        // Enums travel as names ("Admin"), not numbers: readable responses,
-        // and a client cannot accidentally depend on a numeric value that
-        // shifts when the enum grows.
         services.ConfigureHttpJsonOptions(options =>
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         services.AddProblemDetails();
         services.AddExceptionHandler<AppExceptionHandler>();
 
-        // The API runs behind nginx in Compose, on a private network, so the
-        // forwarded scheme and client address are trusted. An API exposed
-        // directly to the internet must not do this: a client could then spoof
-        // its own address and defeat per-address rate limiting.
         services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders =
@@ -91,8 +80,6 @@ public static class ApiServices
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                // Keep claim names as issued ("sub" stays "sub") instead of
-                // remapping them to long WS-Federation URIs.
                 options.MapInboundClaims = false;
 
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -105,8 +92,6 @@ public static class ApiServices
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
                     ValidateLifetime = true,
 
-                    // Tolerate small clock differences between API and client,
-                    // but not the five minutes the default would allow.
                     ClockSkew = TimeSpan.FromSeconds(30),
                     NameClaimType = "name",
                 };
@@ -115,10 +100,7 @@ public static class ApiServices
         services.AddAuthorization();
     }
 
-    /// <summary>
-    /// Fails startup on configuration that is fine locally and dangerous in
-    /// production. Cheaper to catch here than in an incident review.
-    /// </summary>
+    /// <summary>Fails startup on configuration that is fine locally and dangerous in production.</summary>
     private static void GuardProductionConfiguration(
         IConfiguration configuration,
         IWebHostEnvironment environment,
@@ -155,14 +137,10 @@ public static class ApiServices
         {
             if (cors.AllowedOrigins.Length == 0)
             {
-                // No configured origins means same-origin only, which is how
-                // the Compose setup serves the app (nginx proxies /api).
                 policy.WithOrigins().AllowCredentials();
                 return;
             }
 
-            // Specific origins, never AllowAnyOrigin: responses carry the
-            // refresh cookie, and credentialed CORS forbids a wildcard anyway.
             policy
                 .WithOrigins(cors.AllowedOrigins)
                 .AllowAnyHeader()
@@ -177,9 +155,6 @@ public static class ApiServices
         var limits = configuration.GetSection(RateLimitingOptions.SectionName).Get<RateLimitingOptions>()
             ?? new RateLimitingOptions();
 
-        // When disabled (the integration test host), the limiter stays wired up
-        // but permits effectively everything, so endpoint policies still
-        // resolve and tests are not throttled.
         var authPermit = limits.Enabled ? limits.AuthPerMinute : int.MaxValue;
         var invitationPermit = limits.Enabled ? limits.InvitationLookupPerMinute : int.MaxValue;
         var globalPermit = limits.Enabled ? limits.GlobalPerMinute : int.MaxValue;
@@ -234,10 +209,7 @@ public static class ApiServices
         });
     }
 
-    /// <summary>
-    /// Partitions limits by authenticated user when there is one, otherwise by
-    /// client address, so one noisy client cannot exhaust everyone's budget.
-    /// </summary>
+    /// <summary>Partitions limits by authenticated user when there is one, otherwise by client address, so one noisy client cannot exhaust everyone's budget.</summary>
     private static string PartitionKey(HttpContext context) =>
         context.User.FindFirst("sub")?.Value
         ?? context.Connection.RemoteIpAddress?.ToString()

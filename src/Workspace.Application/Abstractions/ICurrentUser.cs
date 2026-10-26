@@ -1,10 +1,6 @@
 namespace Workspace.Application.Abstractions;
 
-/// <summary>
-/// The authenticated principal and request metadata needed for audit entries.
-/// Implemented over <c>HttpContext</c> in the API and as a fixed system actor
-/// in the background worker.
-/// </summary>
+/// <summary>The authenticated principal and request metadata needed for audit entries.</summary>
 public interface ICurrentUser
 {
     bool IsAuthenticated { get; }

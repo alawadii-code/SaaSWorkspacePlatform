@@ -3,20 +3,7 @@ using Workspace.Application.Invitations;
 
 namespace Workspace.Worker;
 
-/// <summary>
-/// The periodic half of the background work.
-/// </summary>
-/// <remarks>
-/// Four passes, every <see cref="Interval"/>:
-/// <list type="number">
-/// <item>promote scheduled retries whose delay has elapsed;</item>
-/// <item>return jobs whose worker died mid-flight to the ready queue;</item>
-/// <item>mark invitations whose expiry has passed, so the UI stops offering
-/// to resend links nobody can redeem;</item>
-/// <item>re-queue invitation emails that were never enqueued, which is what
-/// makes the enqueue-after-commit step safe without a full outbox table.</item>
-/// </list>
-/// </remarks>
+/// <summary>The periodic half of the background work.</summary>
 public sealed class MaintenanceWorker(
     IJobQueueConsumer queue,
     IServiceScopeFactory scopeFactory,
@@ -43,8 +30,6 @@ public sealed class MaintenanceWorker(
             }
             catch (Exception ex)
             {
-                // One failed pass must not stop the schedule: the next tick
-                // tries again.
                 logger.LogError(ex, "Maintenance pass failed.");
             }
         }

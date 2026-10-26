@@ -4,15 +4,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Api.Http;
 
-/// <summary>
-/// Reads the authenticated principal from the current HTTP request.
-/// </summary>
-/// <remarks>
-/// Claims are the only source of identity here. The access token carries
-/// <c>sub</c>, <c>email</c> and <c>name</c> and nothing about authorization,
-/// so there is no way for a client to present a role: roles come from the
-/// membership table, resolved per request.
-/// </remarks>
+/// <summary>Reads the authenticated principal from the current HTTP request.</summary>
 public sealed class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 {
     /// <summary>Header used to correlate a client request with server logs and audit rows.</summary>

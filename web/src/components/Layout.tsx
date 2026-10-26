@@ -29,13 +29,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : 'text-[var(--color-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]'
   }`;
 
-/**
- * Shell for the organization-scoped screens.
- *
- * Navigation is filtered by the caller's permissions, which is presentation
- * only: the audit link is hidden from a member because it would 403, not
- * because hiding it protects anything.
- */
+/** Shell for the organization-scoped screens. */
 export function OrganizationLayout() {
   const { organizationId } = useParams<{ organizationId: string }>();
   const { user, organizations, logout } = useAuth();

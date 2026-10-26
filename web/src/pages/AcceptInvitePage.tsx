@@ -8,12 +8,8 @@ import { Button, Card, ErrorBanner, RoleBadge, Spinner, formatDate } from '../co
 import { useLoader } from '../hooks/useLoader';
 
 /**
- * The screen an invitation link opens.
- *
- * The preview is anonymous, so the invitee can see who invited them before
- * signing in. Accepting requires an account whose email matches the invited
- * address — the server enforces that, and this page explains it when it
- * happens.
+ * The screen an invitation link opens. The preview is anonymous; accepting
+ * requires a signed-in account whose email matches the invited address.
  */
 export function AcceptInvitePage() {
   const [searchParams] = useSearchParams();

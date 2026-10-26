@@ -10,25 +10,7 @@ using Workspace.Infrastructure.Options;
 
 namespace Workspace.Infrastructure.Security;
 
-/// <summary>
-/// Issues signed access tokens and the opaque tokens used for refresh and
-/// invitation links.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Access tokens are HMAC-SHA256 JWTs carrying identity claims only — subject,
-/// email, display name, and a token id. No role or permission claim is issued,
-/// because a token is valid for minutes while a role change must take effect
-/// at once: the server resolves the caller's membership on every request
-/// instead.
-/// </para>
-/// <para>
-/// Refresh and invitation tokens are not JWTs. They are 256 bits from the
-/// system CSPRNG, URL-encoded, and stored only as SHA-256 hashes — a hash of a
-/// high-entropy random value needs no salt or stretching, since there is
-/// nothing to guess.
-/// </para>
-/// </remarks>
+/// <summary>Issues signed access tokens and the opaque tokens used for refresh and invitation links.</summary>
 public sealed class JwtTokenService : ITokenService
 {
     private const int TokenBytes = 32;
@@ -63,6 +45,8 @@ public sealed class JwtTokenService : ITokenService
             NotBefore = now.UtcDateTime,
             Expires = expiresAt.UtcDateTime,
             SigningCredentials = credentials,
+            // Identity only: roles come from the membership table on every request,
+            // so revoking one takes effect before the token expires.
             Claims = new Dictionary<string, object>(StringComparer.Ordinal)
             {
                 ["sub"] = user.Id.ToString(),

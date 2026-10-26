@@ -3,11 +3,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Entities;
 
-/// <summary>
-/// Joins a user to an organization with exactly one role. This row is the
-/// authoritative answer to both "may this user see this tenant at all?" and
-/// "what may they do inside it?".
-/// </summary>
+/// <summary>Joins a user to an organization with exactly one role.</summary>
 public class Membership : Entity, ITenantOwned
 {
     public Guid OrganizationId { get; set; }

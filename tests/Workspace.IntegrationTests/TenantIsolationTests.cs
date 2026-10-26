@@ -10,11 +10,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests;
 
-/// <summary>
-/// The guarantee the brief calls "no cross-organization data access", asserted
-/// from the outside: two tenants exist, and the second one's owner — a fully
-/// authenticated, highly privileged user — can reach nothing of the first's.
-/// </summary>
+/// <summary>The guarantee the brief calls "no cross-organization data access", asserted from the outside: two tenants exist, and the second one's owner — a fully authenticated, highly privileged user — can reach nothing of the first's.</summary>
 [Collection(ApiCollection.Name)]
 public class TenantIsolationTests(ApiFixture fixture)
 {
@@ -29,8 +25,6 @@ public class TenantIsolationTests(ApiFixture fixture)
 
         var response = await outsider.Client.GetAsync($"/api/organizations/{organizationId}");
 
-        // 404 rather than 403: the API does not confirm that this
-        // organization exists.
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -94,10 +88,7 @@ public class TenantIsolationTests(ApiFixture fixture)
         Assert.Equal("Our task", Assert.Single(page!.Items).Title);
     }
 
-    /// <summary>
-    /// Filtering by another tenant's project id must not act as a back door
-    /// around the tenant filter.
-    /// </summary>
+    /// <summary>Filtering by another tenant's project id must not act as a back door around the tenant filter.</summary>
     [Fact]
     public async Task Filtering_tasks_by_another_tenants_project_returns_nothing()
     {
@@ -221,8 +212,6 @@ public class TenantIsolationTests(ApiFixture fixture)
 
         Assert.Equal(HttpStatusCode.NoContent, leave.StatusCode);
 
-        // The access token is unchanged and still valid; authorization comes
-        // from the membership row, which is gone.
         var after = await member.Client.GetAsync($"/api/organizations/{organizationId}");
 
         Assert.Equal(HttpStatusCode.NotFound, after.StatusCode);

@@ -13,11 +13,7 @@ namespace Workspace.Application;
 
 public static class DependencyInjection
 {
-    /// <summary>
-    /// Registers use-case services, validators and the job handlers that run
-    /// in the worker. Infrastructure supplies the implementations of the
-    /// abstractions these depend on.
-    /// </summary>
+    /// <summary>Registers use-case services, validators and the job handlers that run in the worker.</summary>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddSingleton<IClock, SystemClock>();
@@ -30,8 +26,6 @@ public static class DependencyInjection
         services.AddScoped<TaskService>();
         services.AddScoped<AuditQueryService>();
 
-        // Job handlers are resolved by job type; registering them as a set
-        // means adding a handler needs no change to the worker loop.
         services.AddScoped<IJobHandler, SendInvitationEmailHandler>();
 
         services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>(ServiceLifetime.Singleton);

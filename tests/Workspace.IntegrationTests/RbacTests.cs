@@ -8,11 +8,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests;
 
-/// <summary>
-/// Role-based permissions as enforced over HTTP. The matrix itself is covered
-/// by unit tests; these assert that the server — not the client — applies it,
-/// including the row-level rule for a member's own tasks.
-/// </summary>
+/// <summary>Role-based permissions as enforced over HTTP.</summary>
 [Collection(ApiCollection.Name)]
 public class RbacTests(ApiFixture fixture)
 {
@@ -100,10 +96,7 @@ public class RbacTests(ApiFixture fixture)
         Assert.Equal(HttpStatusCode.Forbidden, byOther.StatusCode);
     }
 
-    /// <summary>
-    /// A member may also edit a task assigned to them, which is the other half
-    /// of what "own" means.
-    /// </summary>
+    /// <summary>A member may also edit a task assigned to them, which is the other half of what "own" means.</summary>
     [Fact]
     public async Task Member_can_update_a_task_assigned_to_them()
     {
@@ -322,8 +315,6 @@ public class RbacTests(ApiFixture fixture)
 
         await promote.EnsureSuccessAsync();
 
-        // Same access token as before: roles are read from the database per
-        // request, so the change is effective immediately.
         var after = await member.Client.PostAsJsonAsync(
             $"/api/organizations/{organizationId}/projects",
             new { name = "Now allowed" },

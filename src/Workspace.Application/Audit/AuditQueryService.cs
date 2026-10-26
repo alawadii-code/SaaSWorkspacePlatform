@@ -6,22 +6,7 @@ using Workspace.Domain.Authorization;
 
 namespace Workspace.Application.Audit;
 
-/// <summary>
-/// Read-only access to the current organization's audit trail.
-/// </summary>
-/// <remarks>
-/// <para>
-/// There is no write, update or delete path through the API: entries are
-/// produced only by <see cref="IAuditWriter"/> alongside the action they
-/// describe, and the table rejects UPDATE and DELETE at the database level.
-/// </para>
-/// <para>
-/// <c>db.AuditLogs</c> is filtered to the resolved organization, so
-/// account-level entries (sign-in, failed sign-in, token replay) are not
-/// exposed here: they carry no organization and are for operators reading
-/// server logs, not for tenant admins.
-/// </para>
-/// </remarks>
+/// <summary>Read-only access to the current organization's audit trail.</summary>
 public sealed class AuditQueryService(IWorkspaceDb db, ITenantContext tenant)
 {
     public async Task<PagedResult<AuditLogDto>> ListAsync(
@@ -79,10 +64,7 @@ public sealed class AuditQueryService(IWorkspaceDb db, ITenantContext tenant)
                 cancellationToken);
     }
 
-    /// <summary>
-    /// Returns the distinct actions present in this organization's trail, for
-    /// the filter dropdown.
-    /// </summary>
+    /// <summary>Returns the distinct actions present in this organization's trail, for the filter dropdown.</summary>
     public async Task<IReadOnlyList<string>> ListActionsAsync(CancellationToken cancellationToken = default)
     {
         tenant.Require(Permission.AuditRead);
@@ -94,13 +76,7 @@ public sealed class AuditQueryService(IWorkspaceDb db, ITenantContext tenant)
             .ToListAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Metadata is stored as jsonb. It is parsed back into a
-    /// <see cref="JsonElement"/> so the API returns a real JSON object rather
-    /// than a string containing JSON. Unparseable content is dropped rather
-    /// than failing the request — the trail stays readable even if a bad row
-    /// ever lands.
-    /// </summary>
+    /// <summary>Metadata is stored as jsonb.</summary>
     private static JsonElement? ParseMetadata(string? metadata)
     {
         if (string.IsNullOrWhiteSpace(metadata))

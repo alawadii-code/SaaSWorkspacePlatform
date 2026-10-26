@@ -8,14 +8,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Application.Members;
 
-/// <summary>
-/// Reads and changes memberships of the organization resolved for this request.
-/// </summary>
-/// <remarks>
-/// Role changes and removals enforce <see cref="MembershipRules"/> on top of
-/// the permission matrix, because those rules depend on the target's role and
-/// on how many owners remain.
-/// </remarks>
+/// <summary>Reads and changes memberships of the organization resolved for this request.</summary>
 public sealed class MembershipService(
     IWorkspaceDb db,
     ITenantContext tenant,
@@ -38,9 +31,6 @@ public sealed class MembershipService(
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            // Lower-cased Contains translates to lower(...) LIKE '%term%'.
-            // Provider-agnostic on purpose: ILIKE would pull the Npgsql
-            // provider into the application layer for one query.
             var term = search.Trim().ToLowerInvariant();
 
             query = query.Where(m =>
@@ -122,10 +112,7 @@ public sealed class MembershipService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Removes the caller's own membership. Available to every role, except to
-    /// the last owner, who would leave the organization unadministrable.
-    /// </summary>
+    /// <summary>Removes the caller's own membership.</summary>
     public async Task LeaveAsync(CancellationToken cancellationToken = default)
     {
         var membership = await GetMembershipAsync(tenant.UserId, cancellationToken);
@@ -146,10 +133,7 @@ public sealed class MembershipService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Clears a departing user's task assignments, so no task is left assigned
-    /// to someone who can no longer see it.
-    /// </summary>
+    /// <summary>Clears a departing user's task assignments, so no task is left assigned to someone who can no longer see it.</summary>
     private async Task UnassignTasksAsync(Guid userId, CancellationToken cancellationToken)
     {
         var assigned = await db.Tasks

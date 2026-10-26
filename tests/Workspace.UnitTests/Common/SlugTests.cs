@@ -28,10 +28,7 @@ public class SlugTests
         Assert.Equal(Slug.MaxLength, slug.Length);
     }
 
-    /// <summary>
-    /// An organization named entirely in a non-Latin script must still be
-    /// creatable: the slug falls back to a random handle instead of failing.
-    /// </summary>
+    /// <summary>An organization named entirely in a non-Latin script must still be creatable: the slug falls back to a random handle instead of failing.</summary>
     [Theory]
     [InlineData("شركة")]
     [InlineData("日本語")]

@@ -7,14 +7,7 @@ using Workspace.Domain;
 
 namespace Workspace.Application.Invitations;
 
-/// <summary>
-/// Sends one invitation email. Runs in the worker process, one scope per job.
-/// </summary>
-/// <remarks>
-/// Failures update the invitation's delivery state and then rethrow, so the
-/// worker's retry and dead-letter policy decides what happens next while the
-/// invitation row still shows operators what went wrong.
-/// </remarks>
+/// <summary>Sends one invitation email.</summary>
 public sealed class SendInvitationEmailHandler(
     IWorkspaceDb db,
     IEmailSender emailSender,
@@ -29,8 +22,6 @@ public sealed class SendInvitationEmailHandler(
         var payload = JsonSerializer.Deserialize<SendInvitationEmailPayload>(message.Payload)
             ?? throw new InvalidOperationException($"Job {message.Id} has an unreadable payload.");
 
-        // The worker has no tenant context, so this read is cross-tenant by
-        // necessity and constrained to the invitation id carried by the job.
         var invitation = await db.CrossTenant<Workspace.Domain.Entities.Invitation>()
             .Include(i => i.Organization)
             .Include(i => i.InvitedByUser)
@@ -38,8 +29,6 @@ public sealed class SendInvitationEmailHandler(
 
         if (invitation is null)
         {
-            // The organization or invitation was deleted after the job was
-            // queued. Nothing to send and nothing to retry.
             logger.LogWarning("Invitation {InvitationId} no longer exists; dropping job.", payload.InvitationId);
             return;
         }
@@ -72,8 +61,6 @@ public sealed class SendInvitationEmailHandler(
             invitation.DeliveryAttempts = message.Attempt + 1;
             invitation.DeliveryStatus = InvitationDeliveryStatus.Failed;
 
-            // Store the exception type and message only — never a stack trace
-            // or credentials from a connection string.
             invitation.DeliveryError = $"{ex.GetType().Name}: {Truncate(ex.Message, 400)}";
             invitation.UpdatedAt = now;
 

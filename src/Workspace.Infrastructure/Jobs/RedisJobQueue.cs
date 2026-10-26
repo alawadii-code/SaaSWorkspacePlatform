@@ -8,37 +8,10 @@ using Workspace.Infrastructure.Options;
 
 namespace Workspace.Infrastructure.Jobs;
 
-/// <summary>
-/// A reliable job queue on Redis lists and sorted sets.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Four keys: <c>ready</c> (a FIFO list), <c>processing</c> (a sorted set
-/// scored by the time each job was picked up), <c>scheduled</c> (a sorted set
-/// scored by the time each job becomes runnable) and <c>dead</c> (a capped
-/// list of exhausted jobs).
-/// </para>
-/// <para>
-/// Dequeue pops from <c>ready</c> and records the job in <c>processing</c>
-/// inside one Lua script, so a worker that dies immediately after the pop
-/// cannot lose the job: it stays in <c>processing</c> until
-/// <see cref="RecoverStuckAsync"/> returns it after the visibility timeout.
-/// Delivery is therefore at-least-once, and handlers are written to be
-/// idempotent.
-/// </para>
-/// <para>
-/// Why not a library such as Hangfire or a Redis Stream consumer group: this
-/// needs four operations, the semantics above are the ones the invitation flow
-/// requires, and the whole implementation is small enough to read and test.
-/// A system with many job types and a need for dashboards would be better
-/// served by the library.
-/// </para>
-/// </remarks>
+/// <summary>A reliable job queue on Redis lists and sorted sets.</summary>
 public sealed class RedisJobQueue : IJobQueue, IJobQueueConsumer
 {
-    /// <summary>
-    /// Pops the oldest ready job and records it as in-flight atomically.
-    /// </summary>
+    /// <summary>Pops the oldest ready job and records it as in-flight atomically.</summary>
     private const string PopAndTrackScript =
         """
         local payload = redis.call('RPOP', KEYS[1])
@@ -124,8 +97,6 @@ public sealed class RedisJobQueue : IJobQueue, IJobQueueConsumer
                     return message;
                 }
 
-                // Unreadable payload: drop it out of the processing set rather
-                // than letting it be redelivered forever.
                 logger.LogError("Discarding unreadable job payload: {Payload}", payload);
                 await Database.SortedSetRemoveAsync(ProcessingKey, payload);
                 continue;
@@ -156,9 +127,6 @@ public sealed class RedisJobQueue : IJobQueue, IJobQueueConsumer
         var next = message.NextAttempt();
         var runAt = clock.UtcNow.Add(delay);
 
-        // Schedule the next attempt first: a crash between these two steps
-        // leaves the job in the processing set, where recovery finds it, rather
-        // than dropping it entirely.
         await Database.SortedSetAddAsync(ScheduledKey, Serialize(next), runAt.ToUnixTimeMilliseconds());
         await RemoveFromProcessingAsync(message);
 
@@ -206,8 +174,6 @@ public sealed class RedisJobQueue : IJobQueue, IJobQueueConsumer
 
         foreach (var payload in due)
         {
-            // Removing first acts as the claim: if two workers see the same
-            // due job, only the one whose remove returns true re-queues it.
             if (await Database.SortedSetRemoveAsync(ScheduledKey, payload))
             {
                 await Database.ListLeftPushAsync(ReadyKey, payload);
@@ -268,15 +234,7 @@ public sealed class RedisJobQueue : IJobQueue, IJobQueueConsumer
         return recovered;
     }
 
-    /// <summary>
-    /// Removes a job from the in-flight set.
-    /// </summary>
-    /// <remarks>
-    /// The fast path removes the exact payload, which works because the same
-    /// instance re-serializes identically. The fallback exists so a
-    /// serialization difference can never strand a job in the processing set:
-    /// it finds the entry with a matching job id and removes that.
-    /// </remarks>
+    /// <summary>Removes a job from the in-flight set.</summary>
     private async Task RemoveFromProcessingAsync(JobMessage message)
     {
         if (await Database.SortedSetRemoveAsync(ProcessingKey, Serialize(message)))

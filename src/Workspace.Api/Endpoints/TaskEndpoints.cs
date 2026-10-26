@@ -43,9 +43,6 @@ public static class TaskEndpoints
             .Produces<TaskDto>()
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
 
-        // No permission filter here on purpose: whether this is allowed depends
-        // on the row, not only the role. TaskService checks TaskUpdateAny, or
-        // TaskUpdateOwn plus ownership of this particular task.
         group.MapPut("/{taskId:guid}", async (
                 Guid taskId,
                 UpdateTaskRequest request,
@@ -85,8 +82,6 @@ public static class TaskEndpoints
             .WithSummary("Delete a task")
             .Produces(StatusCodes.Status204NoContent);
 
-        // Creating a task is addressed under its project, which is the only
-        // place a task can come into existence.
         scoped.MapPost("/projects/{projectId:guid}/tasks", async (
                 Guid projectId,
                 CreateTaskRequest request,

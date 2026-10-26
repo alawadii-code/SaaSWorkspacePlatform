@@ -9,15 +9,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Application.Projects;
 
-/// <summary>
-/// Projects within the organization resolved for this request.
-/// </summary>
-/// <remarks>
-/// Every read goes through <c>db.Projects</c>, which carries the tenant query
-/// filter. A project id from another organization therefore does not resolve,
-/// and the caller gets 404 rather than 403 — the API does not confirm that
-/// another tenant's resource exists.
-/// </remarks>
+/// <summary>Projects within the organization resolved for this request.</summary>
 public sealed class ProjectService(
     IWorkspaceDb db,
     ITenantContext tenant,
@@ -195,8 +187,6 @@ public sealed class ProjectService(
     {
         var candidate = Slug.From(name);
 
-        // Scoped to the current tenant by the query filter: two organizations
-        // may both have a "website-redesign" project.
         if (!await db.Projects.AnyAsync(p => p.Slug == candidate, cancellationToken))
         {
             return candidate;

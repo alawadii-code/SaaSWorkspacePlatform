@@ -5,24 +5,7 @@ using Npgsql;
 
 namespace Workspace.Infrastructure.Persistence;
 
-/// <summary>
-/// Applies pending EF Core migrations on startup.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Convenient for local development and for Compose, where the API container
-/// usually wins the race to start before Postgres finishes initializing — the
-/// retry loop below absorbs that.
-/// </para>
-/// <para>
-/// Trade-off worth stating: running migrations from the application process
-/// does not scale to several replicas starting at once, and it gives the
-/// application's database user DDL rights. A production deployment should run
-/// <c>dotnet ef database update</c> (or the generated idempotent SQL script)
-/// as a separate step in the release pipeline and set
-/// <c>Database:MigrateOnStartup=false</c>.
-/// </para>
-/// </remarks>
+/// <summary>Applies pending EF Core migrations on startup.</summary>
 public static class DatabaseMigrator
 {
     public static async Task MigrateAsync(

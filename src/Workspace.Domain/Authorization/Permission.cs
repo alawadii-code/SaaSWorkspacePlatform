@@ -1,10 +1,6 @@
 namespace Workspace.Domain.Authorization;
 
-/// <summary>
-/// Every action the API can authorize. Endpoints declare the permission they
-/// need; they never check roles directly, so adding a role is a change to the
-/// matrix in <see cref="RolePermissions"/> and nothing else.
-/// </summary>
+/// <summary>Every action the API can authorize.</summary>
 public enum Permission
 {
     OrganizationRead = 1,

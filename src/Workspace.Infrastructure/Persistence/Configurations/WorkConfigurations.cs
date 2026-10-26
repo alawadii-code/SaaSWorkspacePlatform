@@ -16,13 +16,9 @@ public sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.Property(p => p.Slug).HasMaxLength(48).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(2000);
 
-        // Slugs are unique per tenant, not globally: two organizations may
-        // each have a "website-redesign".
         builder.HasIndex(p => new { p.OrganizationId, p.Slug }).IsUnique();
         builder.HasIndex(p => new { p.OrganizationId, p.Status });
 
-        // Alternate key that lets tasks reference (organization, project) as a
-        // unit, so a task cannot point at another tenant's project.
         builder.HasAlternateKey(p => new { p.OrganizationId, p.Id });
 
         builder.HasOne(p => p.Organization)
@@ -46,10 +42,6 @@ public sealed class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
         builder.HasIndex(t => new { t.OrganizationId, t.ProjectId, t.Status });
         builder.HasIndex(t => new { t.OrganizationId, t.AssigneeUserId });
 
-        // Composite foreign key into the project's (organization, id)
-        // alternate key. The database therefore rejects a task whose
-        // organization does not match its project's, which makes cross-tenant
-        // re-parenting impossible rather than merely prevented in code.
         builder.HasOne(t => t.Project)
             .WithMany(p => p.Tasks)
             .HasForeignKey(t => new { t.OrganizationId, t.ProjectId })
@@ -80,8 +72,6 @@ public sealed class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(a => a.UserAgent).HasMaxLength(256);
         builder.Property(a => a.CorrelationId).HasMaxLength(64);
 
-        // jsonb rather than text: queryable, and it validates the structure on
-        // the way in.
         builder.Property(a => a.Metadata).HasColumnType("jsonb");
 
         // The audit endpoint reads one organization's trail newest-first.
@@ -89,9 +79,5 @@ public sealed class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.HasIndex(a => new { a.OrganizationId, a.Action });
         builder.HasIndex(a => a.ActorUserId);
 
-        // No foreign keys on purpose. Audit entries are historical facts: they
-        // must survive deletion of the organization, user or resource they
-        // describe, and an ON DELETE action would otherwise have to mutate
-        // rows that the immutability trigger forbids changing.
     }
 }

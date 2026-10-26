@@ -3,10 +3,7 @@ using Workspace.Application.Auth;
 
 namespace Workspace.Api.Http;
 
-/// <summary>
-/// Writes authentication results: access token in the body, refresh token in
-/// an HttpOnly cookie.
-/// </summary>
+/// <summary>Writes authentication results: access token in the body, refresh token in an HttpOnly cookie.</summary>
 public static class AuthResponse
 {
     public static IResult Write(
@@ -25,9 +22,6 @@ public static class AuthResponse
                     HttpOnly = true,
                     Secure = authOptions.UseSecureCookies,
 
-                    // Lax rather than Strict: the invitation flow sends people
-                    // here from an email client, and a Strict cookie would not
-                    // travel on that first navigation.
                     SameSite = SameSiteMode.Lax,
                     Path = authOptions.CookiePath,
                     Expires = DateTimeOffset.UtcNow.Add(refreshLifetime),
@@ -52,10 +46,7 @@ public static class AuthResponse
                 Path = authOptions.CookiePath,
             });
 
-    /// <summary>
-    /// Reads the refresh token from the request body if present, otherwise
-    /// from the cookie. Browsers use the cookie; API clients may post it.
-    /// </summary>
+    /// <summary>Reads the refresh token from the request body if present, otherwise from the cookie.</summary>
     public static string? ReadRefreshToken(
         HttpContext httpContext,
         RefreshRequest? body,
@@ -72,11 +63,7 @@ public static class AuthResponse
     }
 }
 
-/// <summary>
-/// Adds response headers that cost nothing and remove whole classes of
-/// browser-side risk. The API returns JSON only, so the policy can be as tight
-/// as "nothing is allowed".
-/// </summary>
+/// <summary>Adds response headers that cost nothing and remove whole classes of browser-side risk.</summary>
 public sealed class SecurityHeadersMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
@@ -89,8 +76,6 @@ public sealed class SecurityHeadersMiddleware(RequestDelegate next)
         headers["Cross-Origin-Resource-Policy"] = "same-origin";
         headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'";
 
-        // Caching an authenticated API response in a shared cache would leak
-        // one tenant's data to the next request.
         headers["Cache-Control"] = "no-store";
 
         await next(context);

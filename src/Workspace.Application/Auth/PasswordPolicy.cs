@@ -2,27 +2,15 @@ using System.Collections.Frozen;
 
 namespace Workspace.Application.Auth;
 
-/// <summary>
-/// Password rules, following NIST SP 800-63B: length is what matters, so there
-/// are no composition requirements (no "must contain a symbol"), but obvious
-/// and context-specific guesses are blocked.
-/// </summary>
+/// <summary>Password rules, following NIST SP 800-63B: length is what matters, so there are no composition requirements (no "must contain a symbol"), but obvious and context-specific guesses are blocked.</summary>
 public static class PasswordPolicy
 {
     public const int MinLength = 12;
 
-    /// <summary>
-    /// Upper bound so a single request cannot make the server hash megabytes
-    /// of input as a denial-of-service vector.
-    /// </summary>
+    /// <summary>Upper bound so a single request cannot make the server hash megabytes of input as a denial-of-service vector.</summary>
     public const int MaxLength = 128;
 
-    /// <summary>
-    /// A deliberately small deny list of the guesses an online attacker tries
-    /// first. A production deployment would check a breached-password corpus
-    /// (for example a k-anonymity range query against Pwned Passwords); that
-    /// is an outbound dependency this trial does not take on.
-    /// </summary>
+    /// <summary>A deliberately small deny list of the guesses an online attacker tries first.</summary>
     private static readonly FrozenSet<string> CommonPasswords = new[]
     {
         "password", "password1", "password123", "passw0rd", "123456", "1234567",
@@ -33,11 +21,7 @@ public static class PasswordPolicy
         "workspace", "saas", "test1234", "demo1234",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Validates a candidate password against <paramref name="email"/> and
-    /// <paramref name="displayName"/> context. Returns <c>null</c> when
-    /// acceptable, otherwise the reason to show the user.
-    /// </summary>
+    /// <summary>Validates a candidate password against <paramref name="email"/> and <paramref name="displayName"/> context.</summary>
     public static string? Validate(string? password, string? email = null, string? displayName = null)
     {
         if (string.IsNullOrWhiteSpace(password))
@@ -96,8 +80,6 @@ public static class PasswordPolicy
             return false;
         }
 
-        // Compare against the local part of an email, and against each word of
-        // a display name, ignoring very short fragments that would false-positive.
         var fragments = context.Split(['@', ' ', '.', '-', '_'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         return fragments

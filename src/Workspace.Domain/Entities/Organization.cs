@@ -2,10 +2,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Entities;
 
-/// <summary>
-/// A tenant. Every other tenant-owned row carries this entity's id, and all
-/// tenant-scoped queries are filtered by it.
-/// </summary>
+/// <summary>A tenant.</summary>
 public class Organization : Entity
 {
     public required string Name { get; set; }

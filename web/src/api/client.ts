@@ -1,15 +1,7 @@
 /**
- * The single place the frontend talks to the API.
- *
- * Token handling, deliberately:
- * - The access token lives in memory only. Nothing is written to
- *   localStorage or sessionStorage, so a cross-site scripting bug has no
- *   stored credential to steal.
- * - The refresh token is an HttpOnly cookie the browser holds and this code
- *   cannot read. Sessions survive a page reload because the app asks the API
- *   to refresh on startup.
- * - A 401 triggers exactly one refresh attempt, shared between concurrent
- *   requests, then the original request is retried once.
+ * The single place the frontend talks to the API. The access token is kept in
+ * memory only; the refresh token is an HttpOnly cookie this code cannot read.
+ * A 401 triggers one shared refresh attempt and a single retry.
  */
 
 export class ApiError extends Error {

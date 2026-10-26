@@ -2,10 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Workspace.Application.Common;
 
-/// <summary>
-/// Validated paging request. Bounds are enforced here rather than trusted from
-/// the query string, so a client cannot ask for a million rows.
-/// </summary>
+/// <summary>Validated paging request.</summary>
 public sealed record PageRequest
 {
     public const int MaxPageSize = 100;
@@ -39,10 +36,7 @@ public sealed record PagedResult<T>(IReadOnlyList<T> Items, int Page, int PageSi
 
 public static class QueryableExtensions
 {
-    /// <summary>
-    /// Runs a count and a page query for <paramref name="source"/>, mapping
-    /// rows with <paramref name="map"/>.
-    /// </summary>
+    /// <summary>Runs a count and a page query for <paramref name="source"/>, mapping rows with <paramref name="map"/>.</summary>
     public static async Task<PagedResult<TResult>> ToPagedResultAsync<TSource, TResult>(
         this IQueryable<TSource> source,
         PageRequest page,

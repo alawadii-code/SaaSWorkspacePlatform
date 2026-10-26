@@ -47,11 +47,7 @@ public class JwtTokenServiceTests
         Assert.Equal(user.Email, result.Claims["email"].ToString());
     }
 
-    /// <summary>
-    /// Tokens must carry identity only. A role or permission claim would be
-    /// trusted for up to the token's lifetime, which is exactly what the
-    /// per-request membership lookup exists to avoid.
-    /// </summary>
+    /// <summary>Tokens must carry identity only.</summary>
     [Fact]
     public async Task Access_token_carries_no_role_or_permission_claims()
     {

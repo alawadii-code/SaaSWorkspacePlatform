@@ -2,14 +2,7 @@ using System.Reflection;
 
 namespace Workspace.Infrastructure.Persistence.Migrations;
 
-/// <summary>
-/// Loads a migration's SQL from the embedded files next to these classes.
-/// </summary>
-/// <remarks>
-/// Keeping the DDL in <c>.sql</c> files rather than inline strings means the
-/// same text can be read in a diff, run directly against a database with
-/// <c>psql</c>, and applied by EF — one source of truth instead of three.
-/// </remarks>
+/// <summary>Loads a migration's SQL from the embedded files next to these classes.</summary>
 internal static class MigrationSql
 {
     private static readonly Assembly Assembly = typeof(MigrationSql).Assembly;

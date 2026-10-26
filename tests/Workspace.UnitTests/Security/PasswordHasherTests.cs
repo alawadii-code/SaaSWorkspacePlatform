@@ -32,10 +32,7 @@ public class PasswordHasherTests
         Assert.Equal(PasswordVerificationResult.Failed, hasher.Verify(hash, "correct horse battery"));
     }
 
-    /// <summary>
-    /// A per-password random salt means identical passwords hash differently,
-    /// so a stolen table cannot be attacked once for every account at a time.
-    /// </summary>
+    /// <summary>A per-password random salt means identical passwords hash differently, so a stolen table cannot be attacked once for every account at a time.</summary>
     [Fact]
     public void Salts_every_hash()
     {

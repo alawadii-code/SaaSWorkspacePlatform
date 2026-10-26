@@ -7,11 +7,7 @@ using Xunit;
 
 namespace Workspace.UnitTests.Jobs;
 
-/// <summary>
-/// Queue semantics — in-flight tracking, retry scheduling, visibility-timeout
-/// recovery and dead-lettering — asserted against the in-memory
-/// implementation, which shares its contract with the Redis one.
-/// </summary>
+/// <summary>Queue semantics — in-flight tracking, retry scheduling, visibility-timeout recovery and dead-lettering — asserted against the in-memory implementation, which shares its contract with the Redis one.</summary>
 public class InMemoryJobQueueTests
 {
     private readonly FixedClock clock = new();
@@ -90,10 +86,7 @@ public class InMemoryJobQueueTests
         Assert.Equal(1, retried.Attempt);
     }
 
-    /// <summary>
-    /// A job whose worker died is returned to the queue once its visibility
-    /// timeout passes. This is what makes delivery at-least-once.
-    /// </summary>
+    /// <summary>A job whose worker died is returned to the queue once its visibility timeout passes.</summary>
     [Fact]
     public async Task Stuck_jobs_are_recovered_after_the_visibility_timeout()
     {

@@ -45,11 +45,7 @@ public class InvitationEmailTests
         Assert.Contains(expected, email.TextBody, StringComparison.Ordinal);
     }
 
-    /// <summary>
-    /// Organization and inviter names are user-controlled, and this email is
-    /// delivered to someone else, so they must not be able to carry markup
-    /// into the recipient's mail client.
-    /// </summary>
+    /// <summary>Organization and inviter names are user-controlled, and this email is delivered to someone else, so they must not be able to carry markup into the recipient's mail client.</summary>
     [Fact]
     public void Escapes_html_in_user_supplied_names()
     {

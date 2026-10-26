@@ -14,15 +14,11 @@ builder.Services
 
 var app = builder.Build();
 
-// Exception handling wraps everything else, so a failure anywhere downstream
-// still answers with a problem document rather than an empty 500.
 app.UseExceptionHandler();
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 
-// Behind nginx or another proxy, trust the forwarded scheme and client address
-// so rate-limit partitions and audit rows record the real caller.
 app.UseForwardedHeaders();
 
 app.UseCors(CorsOptions.PolicyName);

@@ -12,26 +12,7 @@ using Workspace.Domain.Entities;
 
 namespace Workspace.Application.Invitations;
 
-/// <summary>
-/// Invitation lifecycle: create, list, revoke, resend, preview and accept,
-/// plus the two reconciliation passes the worker runs.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Sending the email is deferred to the background worker, so a slow or
-/// unavailable mail server cannot make the API request fail or hang.
-/// </para>
-/// <para>
-/// The job is enqueued only after the database transaction commits, so the
-/// worker can never pick up an invitation that does not exist yet. If the
-/// enqueue itself fails — Redis down, process killed between the two steps —
-/// the invitation is left with <c>DeliveryStatus = Pending</c> and
-/// <see cref="ReconcileUndeliveredAsync"/> retries it. That is a deliberately
-/// smaller mechanism than a full transactional outbox: it costs one periodic
-/// query instead of an outbox table plus a dispatcher, and the only price is
-/// that a lost enqueue is noticed within a minute rather than immediately.
-/// </para>
-/// </remarks>
+/// <summary>Invitation lifecycle: create, list, revoke, resend, preview and accept, plus the two reconciliation passes the worker runs.</summary>
 public sealed class InvitationService(
     IWorkspaceDb db,
     ITenantContext tenant,
@@ -51,8 +32,6 @@ public sealed class InvitationService(
     {
         tenant.Require(Permission.MemberInvite);
 
-        // An admin must not be able to mint an owner by way of an invitation —
-        // the same rule that stops them promoting one directly.
         if (!MembershipRules.CanGrantRole(tenant.Role, request.Role))
         {
             throw new ForbiddenException("You cannot invite someone at a role higher than your own.");
@@ -61,8 +40,6 @@ public sealed class InvitationService(
         var email = User.Normalize(request.Email);
         var now = clock.UtcNow;
 
-        // No Include: EF translates the navigation into a join, and Include
-        // would be ignored by Any anyway.
         var alreadyMember = await db.Memberships
             .AnyAsync(m => m.User!.NormalizedEmail == email, cancellationToken);
 
@@ -107,6 +84,8 @@ public sealed class InvitationService(
 
         await db.SaveChangesAsync(cancellationToken);
 
+        // Queued after the commit so the worker cannot pick up an invitation that is not
+        // there yet. A failed enqueue is recovered by ReconcileUndeliveredAsync.
         await EnqueueEmailAsync(invitation.Id, plaintext, cancellationToken);
 
         return ToDto(invitation);
@@ -150,8 +129,6 @@ public sealed class InvitationService(
         invitation.RevokedAt = now;
         invitation.UpdatedAt = now;
 
-        // Invalidate the outstanding link immediately: even if the email is
-        // already in someone's inbox, the stored hash no longer matches it.
         invitation.TokenHash = tokens.CreateOpaqueToken().Hash;
 
         audit.Record(
@@ -163,11 +140,7 @@ public sealed class InvitationService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Issues a fresh token for a pending invitation and queues the email
-    /// again. The previous link stops working, so a resend cannot leave two
-    /// valid links in circulation.
-    /// </summary>
+    /// <summary>Issues a fresh token for a pending invitation and queues the email again.</summary>
     public async Task<InvitationDto> ResendAsync(Guid invitationId, CancellationToken cancellationToken = default)
     {
         tenant.Require(Permission.MemberInvite);
@@ -203,11 +176,7 @@ public sealed class InvitationService(
         return ToDto(invitation);
     }
 
-    /// <summary>
-    /// What the accept screen shows before the invitee has signed in.
-    /// Anonymous, so it is rate limited and returns only the few fields that
-    /// screen needs.
-    /// </summary>
+    /// <summary>What the accept screen shows before the invitee has signed in.</summary>
     public async Task<InvitationPreviewDto> PreviewAsync(string token, CancellationToken cancellationToken = default)
     {
         var invitation = await FindByTokenAsync(token, cancellationToken)
@@ -232,16 +201,7 @@ public sealed class InvitationService(
             reason);
     }
 
-    /// <summary>
-    /// Redeems an invitation for the signed-in caller and creates their
-    /// membership.
-    /// </summary>
-    /// <remarks>
-    /// The caller's email must match the invited address. A forwarded link is
-    /// therefore useless to anyone else — the alternative, letting any
-    /// authenticated user redeem any token, turns one leaked email into
-    /// tenant access.
-    /// </remarks>
+    /// <summary>Redeems an invitation for the signed-in caller and creates their membership.</summary>
     public async Task<AcceptInvitationResult> AcceptAsync(string token, CancellationToken cancellationToken = default)
     {
         var userId = currentUser.RequireUserId();
@@ -263,8 +223,6 @@ public sealed class InvitationService(
             throw new ForbiddenException("This invitation was sent to a different email address.");
         }
 
-        // Cross-tenant on purpose: membership in the inviting organization is
-        // exactly what does not exist yet, so the tenant filter cannot help.
         var existing = await db.CrossTenant<Membership>()
             .FirstOrDefaultAsync(
                 m => m.OrganizationId == invitation.OrganizationId && m.UserId == userId,
@@ -307,10 +265,7 @@ public sealed class InvitationService(
             invitation.Role);
     }
 
-    /// <summary>
-    /// Worker pass: marks pending invitations whose expiry has passed, so the
-    /// member list stops offering to resend links that cannot be redeemed.
-    /// </summary>
+    /// <summary>Worker pass: marks pending invitations whose expiry has passed, so the member list stops offering to resend links that cannot be redeemed.</summary>
     public async Task<int> ExpireStaleAsync(int batchSize = 200, CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;
@@ -335,15 +290,7 @@ public sealed class InvitationService(
         return stale.Count;
     }
 
-    /// <summary>
-    /// Worker pass: finds pending invitations whose email was never queued and
-    /// queues it.
-    /// </summary>
-    /// <remarks>
-    /// The plaintext token cannot be recovered from the stored hash, so the
-    /// token is rotated before re-queuing. That is safe precisely because the
-    /// original was never delivered to anyone.
-    /// </remarks>
+    /// <summary>Worker pass: finds pending invitations whose email was never queued and queues it.</summary>
     public async Task<int> ReconcileUndeliveredAsync(int batchSize = 50, CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;
@@ -387,10 +334,7 @@ public sealed class InvitationService(
         return queued.Count;
     }
 
-    /// <summary>
-    /// Looks up an invitation by the hash of the supplied token. Hash equality
-    /// keeps the lookup indexable without storing the token itself.
-    /// </summary>
+    /// <summary>Looks up an invitation by the hash of the supplied token.</summary>
     private async Task<Invitation?> FindByTokenAsync(string token, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(token))
@@ -400,8 +344,6 @@ public sealed class InvitationService(
 
         var hash = tokens.HashToken(token);
 
-        // Cross-tenant on purpose: the caller has a token, not a membership.
-        // The query is constrained to a single-use 256-bit secret.
         return await db.CrossTenant<Invitation>()
             .Include(i => i.Organization)
             .FirstOrDefaultAsync(i => i.TokenHash == hash, cancellationToken);
@@ -418,9 +360,6 @@ public sealed class InvitationService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // The invitation itself is committed. Leaving delivery pending lets
-            // the reconciliation pass pick it up instead of failing the request
-            // the user already completed.
             logger.LogError(
                 ex,
                 "Failed to enqueue invitation email for {InvitationId}; reconciliation will retry.",

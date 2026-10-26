@@ -5,17 +5,7 @@ using Workspace.Infrastructure.Options;
 
 namespace Workspace.Infrastructure.Jobs;
 
-/// <summary>
-/// In-process implementation of the same queue contract.
-/// </summary>
-/// <remarks>
-/// Two uses. Integration tests swap it in so they can assert on what was
-/// enqueued and drive the worker deterministically — including reading the
-/// invitation token out of the job payload, which is the only place it exists
-/// outside the email. And <c>Queue:Provider=memory</c> lets the API run
-/// without Redis for a quick look around, at the cost of losing queued work
-/// when the process stops.
-/// </remarks>
+/// <summary>In-process implementation of the same queue contract.</summary>
 public sealed class InMemoryJobQueue(IOptions<QueueOptions> options, IClock clock)
     : IJobQueue, IJobQueueConsumer
 {
@@ -26,7 +16,7 @@ public sealed class InMemoryJobQueue(IOptions<QueueOptions> options, IClock cloc
     private readonly List<(JobMessage Message, string Error)> dead = [];
     private readonly List<JobMessage> enqueued = [];
 
-    /// <summary>Everything ever enqueued, in order. For test assertions.</summary>
+    /// <summary>Everything ever enqueued, in order.</summary>
     public IReadOnlyList<JobMessage> Enqueued
     {
         get
