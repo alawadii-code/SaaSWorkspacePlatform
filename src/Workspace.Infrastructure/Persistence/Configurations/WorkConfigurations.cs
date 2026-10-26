@@ -48,7 +48,7 @@ public sealed class TaskItemConfiguration : IEntityTypeConfiguration<TaskItem>
             .HasPrincipalKey(p => new { p.OrganizationId, p.Id })
             .OnDelete(DeleteBehavior.Cascade);
 
-        // A deleted user leaves their tasks in place, unassigned.
+        // sOoo a deleted user leaves their tasks in place, unassigned.
         builder.HasOne(t => t.Assignee)
             .WithMany()
             .HasForeignKey(t => t.AssigneeUserId)
@@ -74,7 +74,7 @@ public sealed class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 
         builder.Property(a => a.Metadata).HasColumnType("jsonb");
 
-        // The audit endpoint reads one organization's trail newest-first.
+        // ok sOoo the audit endpoint reads one organization's trail newest-first ngl
         builder.HasIndex(a => new { a.OrganizationId, a.CreatedAt });
         builder.HasIndex(a => new { a.OrganizationId, a.Action });
         builder.HasIndex(a => a.ActorUserId);

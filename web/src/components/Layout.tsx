@@ -36,7 +36,7 @@ export function OrganizationLayout() {
   const { membership, can } = useMembership(organizationId);
 
   if (!membership) {
-    // Either the id is wrong or the caller is no longer a member; the
+    // ok sOoo either the id is wrong or the caller is no longer a member; the
     // organization list is the honest place to land.
     return <Navigate to="/orgs" replace />;
   }

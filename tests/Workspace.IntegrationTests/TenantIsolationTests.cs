@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests;
 
-/// <summary>The guarantee the brief calls "no cross-organization data access", asserted from the outside: two tenants exist, and the second one's owner — a fully authenticated, highly privileged user — can reach nothing of the first's.</summary>
+/// <summary>The guarantee the brief calls "no cross-organization data access", asserted from the outside: two tenants exist, and the second one's owner — a fully authenticated, highly privileged user — can reach nuthin of the first's.</summary>
 [Collection(ApiCollection.Name)]
 public class TenantIsolationTests(ApiFixture fixture)
 {
@@ -38,7 +38,7 @@ public class TenantIsolationTests(ApiFixture fixture)
         var outsider = await fixture.CreateUserAsync("outsider");
         var outsiderOrg = await outsider.CreateOrganizationAsync("Outsider Co");
 
-        // Through the other tenant's own organization route.
+        // Through the other tenant's own organization route tbh
         var viaOwnOrg = await outsider.Client.GetAsync($"/api/organizations/{outsiderOrg}/projects/{projectId}");
         Assert.Equal(HttpStatusCode.NotFound, viaOwnOrg.StatusCode);
 

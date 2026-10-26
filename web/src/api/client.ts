@@ -1,7 +1,7 @@
 /**
- * The single place the frontend talks to the API. The access token is kept in
- * memory only; the refresh token is an HttpOnly cookie this code cannot read.
- * A 401 triggers one shared refresh attempt and a single retry.
+ * sOoo the single place the frontend talks to the API. basically the access token is kept in tbh
+ * memory only; the refresh token is an HttpOnly cookie this code cant read.
+ * ngl a 401 triggers one shared refresh attempt and a single retry.
  */
 
 export class ApiError extends Error {
@@ -71,7 +71,7 @@ async function parseError(response: Response): Promise<ApiError> {
     code = problem.code;
     fieldErrors = problem.errors;
   } catch {
-    // Non-JSON error body (a proxy error page, for example): keep the default.
+    // Non-JSON error body (a proxy error page, for eg): keep the default.
   }
 
   return new ApiError(response.status, message, code, fieldErrors);
@@ -95,7 +95,7 @@ async function refreshSession(): Promise<boolean> {
     } catch {
       return false;
     } finally {
-      // Allow the next 401 to try again.
+      // ngl allow the next 401 to try again.
       setTimeout(() => {
         refreshInFlight = null;
       }, 0);

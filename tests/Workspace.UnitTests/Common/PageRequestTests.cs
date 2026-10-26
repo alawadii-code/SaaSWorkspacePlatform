@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Workspace.UnitTests.Common;
 
-/// <summary>Paging bounds are an input-validation concern: without them a client could ask for every row in a table.</summary>
+/// <summary>Paging bounds are an input-validation concern: w/o them a client cud ask for evry row in a table.</summary>
 public class PageRequestTests
 {
     [Fact]

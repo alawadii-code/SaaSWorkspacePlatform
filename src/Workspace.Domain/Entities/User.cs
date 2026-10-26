@@ -8,7 +8,7 @@ public class User : Entity
     /// <summary>Address as the user typed it, for display and outbound mail.</summary>
     public required string Email { get; set; }
 
-    /// <summary>Lower-cased email used for lookups and the uniqueness constraint, so <c>A@x.com</c> cannot register a second account alongside <c>a@x.com</c>.</summary>
+    /// <summary>Lower-cased email used for lookups and the uniqueness constraint, so <c>A@x.com</c> cant register a second account alongside <c>a@x.com</c>.</summary>
     public required string NormalizedEmail { get; set; }
 
     /// <summary>PBKDF2-HMAC-SHA512 hash (ASP.NET Core Identity v3 format).</summary>
@@ -16,7 +16,7 @@ public class User : Entity
 
     public required string DisplayName { get; set; }
 
-    /// <summary>Disabled accounts keep their data but cannot authenticate.</summary>
+    /// <summary>Disabled accounts keep their data but cant authenticate.</summary>
     public bool IsDisabled { get; set; }
 
     public DateTimeOffset? LastLoginAt { get; set; }

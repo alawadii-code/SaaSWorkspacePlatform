@@ -159,7 +159,7 @@ public sealed class OrganizationService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>Produces a slug that is free at the time of writing; the unique index on <c>organizations.slug</c> is what actually guarantees uniqueness, and a losing race surfaces as a 409 from the database error mapper.</summary>
+    /// <summary>Produces a slug thatz free at the time of writing; the unique index on <c>organizations.slug</c> is what actually guarantees uniqueness, and a losing race surfaces as a 409 from the database error mapper.</summary>
     private async Task<string> GenerateUniqueSlugAsync(string name, CancellationToken cancellationToken)
     {
         var candidate = Slug.From(name);

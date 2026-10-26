@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Workspace.UnitTests.Authorization;
 
-/// <summary>The permission matrix is the authorization contract, so it is tested directly rather than only through the API: a change here that widens access should fail a test, not surface in a code review.</summary>
+/// <summary>The permission matrix is the authorization contract, so itz tested directly insteada only thru the API: a change here that widens access shud fail a test, not surface in a code review.</summary>
 public class RolePermissionsTests
 {
     [Theory]
@@ -85,7 +85,7 @@ public class RolePermissionsTests
         Assert.Equal(all.Length, owner.Count);
     }
 
-    /// <summary>An unmapped role value — a cast integer, or an enum member added without a matrix entry — must grant nothing rather than everything.</summary>
+    /// <summary>An unmapped role value — a cast integer, or an enum member added w/o a matrix entry — must grant nuthin insteada everything.</summary>
     [Fact]
     public void Unknown_role_fails_closed()
     {

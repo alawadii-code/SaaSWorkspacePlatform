@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Workspace.IntegrationTests;
 
-/// <summary>The invitation lifecycle end to end, including the part that runs in the background: the API only queues the email, and the handler that sends it is executed here the way the worker would execute it.</summary>
+/// <summary>The invitation lifecycle end to end, including the part that runs in the background: the API only queues the email, and the handler that sends itz executed here the way the worker wud execute it.</summary>
 [Collection(ApiCollection.Name)]
 public class InvitationFlowTests(ApiFixture fixture)
 {
@@ -30,7 +30,7 @@ public class InvitationFlowTests(ApiFixture fixture)
             organizationId,
             $"invitee-{Guid.NewGuid():N}@example.test");
 
-        // The request returned without touching SMTP.
+        // ok sOoo the request returned w/o touching SMTP.
         Assert.Empty(fixture.Emails.Sent);
         Assert.False(string.IsNullOrWhiteSpace(token));
 
@@ -106,7 +106,7 @@ public class InvitationFlowTests(ApiFixture fixture)
         var organizationId = await owner.CreateOrganizationAsync("Failure Co");
         var email = $"invitee-{Guid.NewGuid():N}@example.test";
 
-        // Clear any backlog first, so the only job that fails is this one.
+        // clear any backlog first, so the only job that fails is this one.
         await fixture.DrainJobsAsync();
 
         var (invitationId, _) = await fixture.InviteAsync(owner, organizationId, email);
@@ -235,7 +235,7 @@ public class InvitationFlowTests(ApiFixture fixture)
         Assert.True(preview.IsValid);
         Assert.Null(preview.Reason);
 
-        // No organization id, member list or inviter details leak here.
+        // ok sOoo no organization id, member list or inviter details leak here.
         var body = await response.Content.ReadAsStringAsync();
         Assert.DoesNotContain(organizationId.ToString(), body, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain(owner.Email, body, StringComparison.OrdinalIgnoreCase);

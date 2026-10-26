@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Workspace.UnitTests.Jobs;
 
-/// <summary>Queue semantics — in-flight tracking, retry scheduling, visibility-timeout recovery and dead-lettering — asserted against the in-memory implementation, which shares its contract with the Redis one.</summary>
+/// <summary>Queue semantics — in-flight tracking, retry scheduling, visibility-timeout recovery and dead-lettering — asserted against the in-memory implementation, which shares its contract w/ the Redis one.</summary>
 public class InMemoryJobQueueTests
 {
     private readonly FixedClock clock = new();
@@ -95,7 +95,7 @@ public class InMemoryJobQueueTests
 
         var job = await queue.DequeueAsync(TimeSpan.Zero);
 
-        // Simulates a worker that never acknowledged.
+        // simulates a worker that nvr acknowledged.
         Assert.Equal(0, await queue.RecoverStuckAsync());
 
         clock.Advance(TimeSpan.FromSeconds(options.VisibilityTimeoutSeconds + 1));

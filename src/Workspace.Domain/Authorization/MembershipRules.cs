@@ -2,7 +2,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Authorization;
 
-/// <summary>Membership invariants that a static permission matrix cannot express, because they depend on the relationship between actor and target.</summary>
+/// <summary>Membership invariants that a static permission matrix cant express, cuz they depend on the relationship btwn actor and target.</summary>
 public static class MembershipRules
 {
     /// <summary>Whether <paramref name="actorRole"/> may act on a membership currently held at <paramref name="targetRole"/>.</summary>
@@ -65,7 +65,7 @@ public static class MembershipRules
     {
         if (actorUserId == targetUserId)
         {
-            // Leaving is a separate, intentional operation with its own rules.
+            // leaving is a separate, intentional operation w/ its own rules.
             throw new ConflictException("Use the leave-organization endpoint to remove yourself.");
         }
 

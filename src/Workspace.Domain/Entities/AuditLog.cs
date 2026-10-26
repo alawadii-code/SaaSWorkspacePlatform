@@ -13,10 +13,10 @@ public class AuditLog : Entity
     /// <summary>Actor's email at the time of the action.</summary>
     public string? ActorEmail { get; set; }
 
-    /// <summary>Dotted action name, for example <c>member.role_changed</c>.</summary>
+    /// <summary>Dotted action name, for eg <c>member.role_changed</c>.</summary>
     public required string Action { get; set; }
 
-    /// <summary>Type of the affected resource, for example <c>project</c>.</summary>
+    /// <summary>Type of the affected resource, for eg <c>project</c>.</summary>
     public required string ResourceType { get; set; }
 
     public string? ResourceId { get; set; }
@@ -28,6 +28,6 @@ public class AuditLog : Entity
 
     public string? UserAgent { get; set; }
 
-    /// <summary>Correlates the entry with the HTTP request that produced it.</summary>
+    /// <summary>Correlates the entry w/ the HTTP request that produced it.</summary>
     public string? CorrelationId { get; set; }
 }

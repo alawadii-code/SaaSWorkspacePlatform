@@ -2,7 +2,7 @@ using Workspace.Application.Abstractions;
 
 namespace Workspace.IntegrationTests.Fixtures;
 
-/// <summary>Records emails instead of sending them, so tests can assert on what a recipient would actually receive — and so no test run can deliver mail.</summary>
+/// <summary>Records emails instead of sending them, so tests can assert on what a recipient wud actually receive — and so no test run can deliver mail.</summary>
 public sealed class CapturingEmailSender : IEmailSender
 {
     private readonly Lock gate = new();

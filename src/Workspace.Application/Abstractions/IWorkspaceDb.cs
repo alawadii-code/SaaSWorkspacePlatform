@@ -22,7 +22,7 @@ public interface IWorkspaceDb
 
     DbSet<RefreshToken> RefreshTokens { get; }
 
-    /// <summary>Escape hatch that bypasses the tenant query filter, for the few reads that cannot be tenant-scoped by definition: resolving which organizations a user belongs to, resolving the caller's membership for the requested organization, and redeeming an invitation token before membership exists.</summary>
+    /// <summary>Escape hatch that bypasses the tenant query filter, for the few reads that cant be tenant-scoped by definition: resolving which organizations a user belongs to, resolving the caller's membership for the requested organization, and redeeming an invitation token before membership exists.</summary>
     IQueryable<TEntity> CrossTenant<TEntity>() where TEntity : class;
 
     /// <summary>Persists all tracked changes in a single transaction.</summary>

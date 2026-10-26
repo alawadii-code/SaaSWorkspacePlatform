@@ -7,7 +7,7 @@ public interface IPasswordHasher
 {
     string Hash(string password);
 
-    /// <summary>Verifies a password, reporting whether the stored hash used outdated parameters and should be rewritten on successful login.</summary>
+    /// <summary>Verifies a password, reporting whether the stored hash used outdated parameters and shud be rewritten on successful login.</summary>
     PasswordVerificationResult Verify(string hash, string password);
 }
 
@@ -27,7 +27,7 @@ public interface ITokenService
     /// <summary>Generates a new refresh token: plaintext for the client, hash for storage.</summary>
     (string Plaintext, string Hash) CreateRefreshToken();
 
-    /// <summary>Generates a single-use, URL-safe token with 256 bits of entropy, used for invitation links.</summary>
+    /// <summary>Generates a single-use, URL-safe token w/ 256 bits of entropy, used for invitation links.</summary>
     (string Plaintext, string Hash) CreateOpaqueToken();
 
     /// <summary>Hashes a refresh or invitation token for constant-time lookup by hash.</summary>

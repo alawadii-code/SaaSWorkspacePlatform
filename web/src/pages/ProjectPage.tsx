@@ -46,7 +46,7 @@ export function ProjectPage() {
   );
 
   // Needed to offer assignees. A viewer can read members, so this is safe to
-  // load for every role that can see the board.
+  // load for evry role that can see the board.
   const members = useLoader<Paged<Member>>(
     () => api.get<Paged<Member>>(`/organizations/${organizationId}/members?pageSize=100`),
     [organizationId],

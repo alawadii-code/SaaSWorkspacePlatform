@@ -12,7 +12,7 @@ public static class RetryPolicy
     /// <summary>Whether a job that has failed <paramref name="attempt"/> times may run again.</summary>
     public static bool ShouldRetry(int attempt) => attempt < MaxAttempts;
 
-    /// <summary>Exponential backoff with full jitter: 5s, 10s, 20s, 40s … capped at 15 minutes.</summary>
+    /// <summary>Exponential backoff w/ full jitter: 5s, 10s, 20s, 40s … capped at 15 minutes.</summary>
     public static TimeSpan DelayFor(int attempt, double? jitter = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(attempt);

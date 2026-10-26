@@ -1,6 +1,6 @@
-# Architecture
+# architecture
 
-## System
+## the system
 
 ```mermaid
 flowchart LR
@@ -13,222 +13,230 @@ flowchart LR
     Worker -->|SMTP| Mail["Mailpit / provider"]
 ```
 
-Two processes share one codebase and one database. The API serves requests; the
-worker handles work that must not block or fail a request, currently invitation
-email plus four periodic maintenance passes.
+sOoo itz 2 processes sharing one codebase n one database. the API answers
+requests, the worker does the stuff that shudnt block or break a request —
+rn thatz invitation email plus 4 periodic maintenance passes.
 
-nginx serves the frontend and proxies `/api`, so the browser sees one origin.
-That keeps the refresh cookie first-party and removes CORS from the deployed
-configuration. The Vite dev server proxies the same way.
+nginx serves the frontend n proxies `/api`, sOoo the browser only ever sees
+one origin. thatz what keeps the refresh cookie first-party n means i dont
+need CORS at all in the deployed setup. the Vite dev server proxies the same
+way.
 
-Projects depend inward: `Api`/`Worker` → `Infrastructure` → `Application` →
-`Domain`. `Domain` has no package references, which keeps the permission matrix
-and membership rules testable as plain functions.
+projects depend inward: `Api`/`Worker` → `Infrastructure` → `Application` →
+`Domain`. `Domain` has zero package refs, which is why the permission matrix n
+the membership rules can be tested as plain functions w/o a db.
 
-**Trade-off:** `Application` consumes EF Core `DbSet<T>` through an
-`IWorkspaceDb` interface rather than custom repositories. Repositories over an
-ORM tend to leak `IQueryable` or grow one method per query. The cost is that
-changing ORM would touch the application layer.
+**tradeoff:** `Application` uses EF Core `DbSet<T>` thru an `IWorkspaceDb`
+interface insteada custom repositories. repositories on top of an ORM usually
+leak `IQueryable` anyway or grow one method per query til they just mirror the
+call sites. the cost is that swapping ORM wud touch the application layer, n
+im fine w/ that.
 
-## Tenancy
+## tenancy
 
-One database with an organization discriminator, rather than a database per
-tenant: per-tenant databases make migrations and pooling an operational problem
-for many small tenants. Isolation is enforced in three places.
+one database w/ an organization discriminator, not a db per tenant. per-tenant
+databases make migrations n pooling a real ops problem once u have lots of
+small tenants. sOoo isolation is enforced in 3 separate places instead.
 
-**1. The tenant comes from the route, not from the client.** Tenant-scoped
-routes live under `/api/organizations/{organizationId}` and the whole group runs
-`TenantResolutionFilter`, which loads the caller's membership and pins
-`ITenantContext`. Nothing in the body, headers or query string can set the
-organization or the role. Because the role is read per request, a demotion or
-removal applies to the caller's next call rather than at token expiry. A
-non-member gets 404, not 403, so the API cannot be used to probe for other
-tenants.
+**1. the tenant comes from the route, nvr from the client.** tenant-scoped
+routes live under `/api/organizations/{organizationId}` n the whole group runs
+`TenantResolutionFilter`, which loads the callers membership n pins
+`ITenantContext`. nuthin in the body, headers or query string can set the org
+or the role. the role is read per request sOoo a demotion or a removal applies
+on the callers *next* call, not whenever their token happens to expire.
 
-**2. A query filter on every tenant-owned entity.** A query that omits its own
-organization predicate still returns nothing from other tenants. When no tenant
-is resolved the filter compares against `Guid.Empty`, so it fails closed. Query
-filters do not apply to inserts, so `SaveChangesAsync` also rejects writing a
-tenant-owned row into a different organization.
+n if ur not a member u get 404, not 403 — a 403 wud confirm the org exists,
+which is exactly the thing i dont want leaking.
 
-Three reads legitimately cross tenants and all go through
-`IWorkspaceDb.CrossTenant<T>()`, which exists so they can be found by name:
+**2. a query filter on evry tenant-owned entity.** a query that forgets its own
+organization predicate still returns nuthin from other tenants. when no tenant
+is resolved the filter compares against `Guid.Empty`, sOoo it fails closed
+insteada open. query filters dont apply to inserts tho, sOoo `SaveChangesAsync`
+also rejects writing a tenant-owned row into a different org.
 
-| Call site | Constrained by |
+3 reads legitimately cross tenants n they all go thru
+`IWorkspaceDb.CrossTenant<T>()`, which exists purely sOoo u can grep them:
+
+| call site | constrained by |
 | --- | --- |
-| "Which organizations am I in?" (`/auth/me`) | the caller's user id |
-| Tenant resolution | the caller's user id and the requested organization |
-| Invitation preview, accept, worker reads | a 256-bit single-use token hash, or the job's invitation id |
+| "which orgs am i in?" (`/auth/me`) | the callers own user id |
+| tenant resolution | the callers user id + the requested org |
+| invitation preview, accept, worker reads | a 256-bit single-use token hash, or the jobs invitation id |
 
-**3. The database.** `tasks` references `projects` by composite key
-`(organization_id, project_id) → (organization_id, id)`, so a task in one tenant
-pointing at another tenant's project cannot be represented. A partial unique
-index allows one pending invitation per address per organization while leaving
-accepted and revoked ones alone.
+**3. the database itself.** `tasks` points at `projects` w/ a composite key
+`(organization_id, project_id) → (organization_id, id)`, sOoo a task in one
+tenant pointing at another tenants project literally cant be represented. n
+theres a partial unique index allowing one *pending* invitation per address per
+org while leaving accepted/revoked ones alone.
 
-**Not done: row-level security.** It would add a layer that holds even for a
-hand-written query, but with pooled connections it needs a session variable set
-per transaction through an EF interceptor, and its failure mode is silent. Three
-enforced layers with tests seemed better than four where one might not engage.
-This is the first thing to add for a compliance requirement.
+**what i skipped: row-level security.** it wud add a layer that holds even for
+a hand-written query, but w/ pooled connections u need a session variable set
+per transaction thru an EF interceptor, n when that breaks it breaks silently.
+3 layers i can actually test beat 4 where one might not be engaged. itz the
+first thing id add for a compliance requirement tho.
 
-## Authentication
+## auth
 
-Access tokens are 15-minute HMAC-SHA256 JWTs carrying identity only. No role or
-permission claim: a token is valid for minutes, a revoked role must apply
-immediately.
+access tokens are 15-min HMAC-SHA256 JWTs carrying identity only. no role n no
+permission claim, cuz a token is valid for minutes n a revoked role has to
+apply immediately.
 
-Refresh tokens are 256-bit random values stored as SHA-256 hashes and rotated on
-every use, with the chain sharing a `chain_id`. Presenting an already-rotated
-token means it was captured, so the whole chain is revoked and the event is
-audited. The token is delivered as an `HttpOnly`, `SameSite=Lax`, `Secure`
-cookie scoped to `/api/auth`; it appears in the response body only when
-`Auth:ReturnRefreshTokenInBody` is on, which is off by default and exists for
-non-browser clients. `Lax` rather than `Strict` because invitation links arrive
-from an email client.
+refresh tokens arent JWTs. theyre 256-bit random values stored only as SHA-256
+hashes, rotated on evry use, w/ the whole chain sharing a `chain_id`. if
+sumthin presents an already-rotated token that means it got captured, sOoo i
+revoke the entire chain n audit it. yes that signs the real user out — thatz
+the correct outcome when a session is known to be compromised.
 
-Passwords use ASP.NET Core Identity's PBKDF2-HMAC-SHA512 at 210,000 iterations
-(OWASP 2023). Argon2id is stronger but every .NET implementation is a
-third-party native dependency; the verifier reports outdated parameters, so the
-cost can be raised later and hashes upgrade on next sign-in. Policy follows NIST
-SP 800-63B: length 12-128, no composition rules, a small deny list, and no
-reuse of the user's own email or name.
+delivery is an `HttpOnly`, `SameSite=Lax`, `Secure` cookie scoped to
+`/api/auth`. it only shows up in the response body when
+`Auth:ReturnRefreshTokenInBody` is on, which is off by default n exists for
+non-browser clients. `Lax` n not `Strict` cuz invitation links arrive from an
+email client n a Strict cookie wudnt travel on that first navigation.
 
-Every sign-in failure returns the same message, and an unknown address still
-pays for a hash verification so timing does not reveal which accounts exist. Ten
-consecutive failures lock an account for 15 minutes, which is not disclosed.
-Registration does report a duplicate address, which trades enumeration
-resistance for usability at the one endpoint where the user needs to know.
+passwords use ASP.NET Core Identitys PBKDF2-HMAC-SHA512 at 210,000 iterations
+(OWASP 2023). argon2id is stronger ngl, but evry .NET implementation is a
+third-party native dep, n the verifier here reports outdated params sOoo i can
+raise the cost later n hashes upgrade on next sign-in. policy follows NIST SP
+800-63B: length 12-128, no composition rules, a small deny list, n no reusing
+ur own email or name.
 
-## Authorization
+evry sign-in failure returns the same message, n an unknown address still pays
+for a hash verification sOoo timing doesnt tell u which accounts exist. 10
+consecutive failures locks the account for 15 min n i dont disclose that
+either. registration does report a duplicate address — thatz a conscious
+tradeoff, cuz thatz the one endpoint where the user genuinely needs to know.
 
-Four roles map to permissions through one static matrix. Endpoints declare a
-permission, never a role. The matrix is cumulative and an unmapped role grants
-nothing.
+## authorization
 
-Checks happen twice: an endpoint filter rejects early, and the service checks
-again, so an endpoint that forgets its filter is not an open door.
+4 roles map to permissions thru one static matrix. endpoints declare a
+permission, nvr a role. the matrix is cumulative n an unmapped role gets
+nuthin.
 
-Rules that depend on the target live in `MembershipRules`:
+checks happen twice on purpose: an endpoint filter rejects early, n the service
+checks again, sOoo an endpoint that forgets its filter still isnt an open door.
 
-- an admin may not act on an owner or grant the Owner role;
-- nobody changes their own role;
-- an organization always keeps at least one owner;
-- an assignee must be a member of the same organization.
+rules that depend on *who the target is* live in `MembershipRules`:
 
-Task editing is row-level: Admins and Owners hold `TaskUpdateAny`, a Member
-holds `TaskUpdateOwn` and may edit only tasks they created or are assigned to.
-That check needs the row, so it lives in `TaskService`.
+- an admin cant act on an owner or grant Owner
+- nobody changes their own role
+- an org always keeps at least one owner
+- an assignee has to be a member of the same org
 
-The frontend makes no authorization decisions. It reads the caller's permission
-list from `/auth/me` to decide what to render; every denial test calls the API
+task editing is row-level: Admins n Owners hold `TaskUpdateAny`, a Member holds
+`TaskUpdateOwn` n can only edit tasks they created or are assigned to. that
+check needs the actual row sOoo it lives in `TaskService`.
+
+the frontend makes zero authorization decisions. it reads the permission list
+from `/auth/me` to decide what to render, n evry denial test calls the API
 directly.
 
-## Audit
+## audit
 
-Entries are written into the same change tracker as the action, so one
-`SaveChangesAsync` commits both. There is no path that changes data without
-recording it.
+entries go into the same change tracker as the action, sOoo one
+`SaveChangesAsync` commits both. theres no path that changes data w/o recording
+it.
 
-Immutability is enforced twice: the application refuses to modify or delete an
-audit row, and a trigger rejects `UPDATE`, `DELETE` and `TRUNCATE`. The second
-is what makes the trail evidence rather than convention.
+immutability is enforced twice: the app refuses to modify or delete an audit
+row, n a trigger rejects `UPDATE`, `DELETE` n `TRUNCATE`. the second one is
+what makes the trail evidence insteada just a convention — bypassing the app
+doesnt help u.
 
-`audit_logs` has no foreign keys, so deleting a tenant leaves its history
-intact, including the record of the deletion. The actor's email is denormalized
-so entries stay readable after an account is removed.
+`audit_logs` has no foreign keys at all, sOoo deleting a tenant leaves its
+history intact, including the record of the deletion itself. the actors email
+is denormalized sOoo entries stay readable after an account is gone.
 
-Account-level events (sign-in, failed sign-in, token replay) carry no
-organization and never appear in a tenant's trail. Metadata is `jsonb` and never
-holds credentials or tokens.
+account-level events (sign-in, failed sign-in, token replay) carry no org n
+nvr show up in a tenants trail. metadata is `jsonb` n nvr holds credentials or
+tokens.
 
-## Background work
+## background work
 
-Four Redis keys: `ready` (list), `processing` (sorted set by pickup time),
-`scheduled` (sorted set by run time) and `dead`. Dequeue pops and records the job
-in-flight in one Lua script, so a worker that dies after the pop does not lose
-it; the visibility timeout returns it. Delivery is therefore at-least-once and
-handlers are idempotent.
+4 redis keys: `ready` (list), `processing` (sorted set by pickup time),
+`scheduled` (sorted set by run time) n `dead`. dequeue pops n records the job
+in-flight inside one Lua script, sOoo a worker that dies right after the pop
+doesnt lose it — the visibility timeout brings it back. delivery is therefore
+at-least-once n handlers are idempotent.
 
-Retries use exponential backoff with full jitter (5s, 10s, 20s, 40s, capped at
-15 minutes) and dead-letter after five attempts. Jitter matters when a mail
-provider has an outage, or every invitation queued in that window retries in
-lockstep.
+retries are exponential backoff w/ full jitter (5s, 10s, 20s, 40s, capped at 15
+min) n dead-letter after 5 attempts. the jitter matters when a mail provider
+has an outage, otherwise evry invitation queued in that window retries in
+lockstep lol.
 
-Polling rather than `BRPOPLPUSH`: StackExchange.Redis multiplexes one
-connection, and a blocking command would stall everything else on it.
+polling insteada `BRPOPLPUSH` cuz StackExchange.Redis multiplexes one
+connection n a blocking command wud stall everything else on it.
 
-Jobs are enqueued after the transaction commits, so the worker cannot see an
-invitation that does not exist. If the enqueue itself fails, the invitation is
-left pending and a periodic pass re-queues it, rotating the token first since
-the original was never delivered. This is smaller than a transactional outbox:
-one periodic query instead of an outbox table and dispatcher, at the cost of
-noticing a lost enqueue within a minute rather than immediately. Higher volume,
-or work that is money rather than email, justifies the outbox.
+jobs are enqueued *after* the transaction commits, sOoo the worker cant see an
+invitation that doesnt exist yet. if the enqueue itself fails the invitation is
+left pending n a periodic pass re-queues it, rotating the token first since the
+original nvr got delivered anyway. thatz smaller than a transactional outbox:
+one periodic query insteada an outbox table + dispatcher, n the only cost is
+noticing a lost enqueue within a minute insteada instantly. higher volume, or
+work thatz money n not email, wud justify the outbox.
 
-## Data model
+## data model
 
-- UUID v7 identifiers, generated in the application: unique but time-ordered, so
-  index inserts stay at the right-hand edge, and an entity can be referenced
-  before its transaction commits.
-- Tasks carry `organization_id` even though it is derivable, which buys a
-  uniform filter with no join and the composite foreign key above.
-- Enums are stored as integers so role ordering sorts correctly, and serialized
-  as names so clients never depend on a number.
-- Migrations are SQL applied by EF Core. The partial index, composite key and
-  audit trigger read better as DDL, and the files can be run with `psql`.
-  Consequence: there is no EF model snapshot, so the next migration is written
-  as SQL too.
-- Organization deletion is a hard delete gated on the caller echoing the slug.
-  Production would soft-delete with a retention window.
+- UUID v7 ids generated in the app: unique but time-ordered sOoo index inserts
+  stay at the right-hand edge, n i can reference an entity before its
+  transaction commits
+- tasks carry `organization_id` even tho itz derivable, which buys a uniform
+  filter w/o a join plus the composite FK above
+- enums stored as ints sOoo role ordering sorts right, serialized as names sOoo
+  clients nvr depend on a number
+- migrations are SQL applied by EF Core. the partial index, composite key n
+  audit trigger all read better as DDL n the files can just be run w/ `psql`.
+  consequence: theres no EF model snapshot, sOoo the next migration is written
+  as SQL too
+- deleting an org is a hard delete gated on echoing the slug. prod wud
+  soft-delete w/ a retention window
 
-## Errors and input
+## errors n input
 
-Failures are RFC 9457 problem documents with a stable `code` and a
-`correlationId` that also appears on the response header and on any audit rows
-the request produced. Validation runs in an endpoint filter and returns 422 with
-per-field messages. Unique-constraint violations map to 409 centrally, because a
-check-then-insert is a race. A 500 returns the correlation id and nothing else.
+failures are RFC 9457 problem documents w/ a stable `code` n a `correlationId`
+that also shows up on the response header n on any audit rows the request
+produced. validation runs in an endpoint filter n returns 422 w/ per-field
+messages. unique-constraint violations map to 409 centrally, cuz a
+check-then-insert is a race. a 500 returns the correlation id n nuthin else.
 
-Also: per-address rate limits on authentication and anonymous invitation lookup,
-`nosniff`, `DENY`, `no-referrer`, a restrictive CSP and `no-store` on every
-response, and forwarded headers trusted only because the API sits behind nginx
-on a private network.
+also btw: per-address rate limits on auth n anonymous invitation lookup,
+`nosniff`, `DENY`, `no-referrer`, a tight CSP n `no-store` on evry response, n
+forwarded headers trusted only cuz the API sits behind nginx on a private
+network.
 
-## Testing
+## testing
 
-Unit tests cover the permission matrix, membership rules, password policy, slug
-generation, retry schedule, token issuance and queue semantics.
+unit tests cover the permission matrix, membership rules, password policy, slug
+generation, retry schedule, token issuance n queue semantics.
 
-Integration tests run the real pipeline against a real PostgreSQL, with a
-throwaway database per run. An in-memory provider has no partial indexes, no
-composite foreign keys and no triggers, so it would drop exactly the guarantees
-worth testing. Two things are substituted to make assertions possible: the queue
-runs in memory so a test can read the enqueued job, and email is captured.
+integration tests run the real pipeline against a real PostgreSQL w/ a
+throwaway database per run. an in-memory provider has no partial indexes, no
+composite FKs n no triggers, sOoo it wud silently drop exactly the guarantees
+worth testing. 2 things are swapped to make assertions possible: the queue runs
+in memory sOoo a test can read the enqueued job, n email is captured.
 
-The invitation tests read the token from the job payload, which is the only
-place it exists outside the email, so they prove the property they rely on.
+the invitation tests read the token out of the job payload, which is the only
+place it exists outside the email — sOoo those tests prove the property they
+rely on.
 
-## Known limitations
+## known limitations
 
-- Rate limiting is per-instance, so limits multiply by replica count. A
-  Redis-backed store fixes it.
-- Migrations run on API startup by default, which does not suit several replicas
-  starting at once. `Database:MigrateOnStartup=false` plus a release step is the
-  production answer.
-- Deleting a user is blocked while invitations they sent exist
-  (`ON DELETE RESTRICT`), to preserve who invited whom. There is no user
-  deletion endpoint.
-- The invitation token travels in the queue payload. Redis is not exposed
-  outside the private network; encrypting job payloads would close this.
-- No password reset, email verification, SSO, attachments or realtime updates.
-  These are features rather than missing guarantees.
+- rate limiting is per-instance, sOoo limits multiply by replica count. a
+  redis-backed store fixes it
+- migrations run on API startup by default which doesnt suit several replicas
+  starting at once. `Database:MigrateOnStartup=false` + a release step is the
+  prod answer
+- deleting a user is blocked while invitations they sent exist
+  (`ON DELETE RESTRICT`), to preserve who invited who. theres no user deletion
+  endpoint anyway
+- the invitation token travels in the queue payload. redis isnt exposed outside
+  the private network, n encrypting job payloads wud close this properly
+- no password reset, email verification, SSO, attachments or realtime updates.
+  those are features, not missing guarantees
 
-## Next
+## next
 
-1. Password reset and email verification, reusing the token pattern and worker.
-2. Row-level security as a fourth isolation layer.
-3. Transactional outbox if background work grows beyond email.
-4. Soft delete with a retention window.
-5. OpenTelemetry traces and metrics; the correlation id is already threaded
-   through requests, audit rows and jobs.
+1. password reset n email verification, reusing the token pattern + worker
+2. row-level security as a 4th isolation layer
+3. transactional outbox if background work grows past email
+4. soft delete w/ a retention window
+5. OpenTelemetry traces n metrics — the correlation id is already threaded thru
+   requests, audit rows n jobs

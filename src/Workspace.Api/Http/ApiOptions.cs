@@ -27,7 +27,7 @@ public sealed class CorsOptions
 
     public const string PolicyName = "workspace-web";
 
-    /// <summary>Explicit origins only — never a wildcard, because the API answers with credentials (the refresh cookie).</summary>
+    /// <summary>Explicit origins only — nvr a wildcard, cuz the API answers w/ credentials (the refresh cookie).</summary>
     public string[] AllowedOrigins { get; set; } = [];
 }
 

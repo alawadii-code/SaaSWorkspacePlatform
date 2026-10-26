@@ -3,7 +3,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Entities;
 
-/// <summary>Joins a user to an organization with exactly one role.</summary>
+/// <summary>Joins a user to an organization w/ exactly one role.</summary>
 public class Membership : Entity, ITenantOwned
 {
     public Guid OrganizationId { get; set; }

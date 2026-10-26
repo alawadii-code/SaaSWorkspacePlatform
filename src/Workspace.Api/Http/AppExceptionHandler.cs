@@ -20,7 +20,7 @@ public sealed class AppExceptionHandler(
         Exception exception,
         CancellationToken cancellationToken)
     {
-        // The client gave up on the request; there is nobody to answer.
+        // ok sOoo the client gave up on the request; there is nobody to answer ngl
         if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
         {
             return true;
@@ -108,7 +108,7 @@ public sealed class AppExceptionHandler(
             environment.IsDevelopment() ? badRequest.Message : "The request could not be parsed.",
             httpContext),
 
-        // Exception text can carry connection strings, SQL and paths: log it, never return it.
+        // exception text can carry connection strings, SQL and paths: log it, nvr return it.
         _ => Problem(
             StatusCodes.Status500InternalServerError,
             "internal_error",

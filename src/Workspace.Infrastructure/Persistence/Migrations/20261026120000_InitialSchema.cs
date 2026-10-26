@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Workspace.Infrastructure.Persistence.Migrations;
 
-/// <summary>Creates every table, index and constraint the application starts from.</summary>
+/// <summary>Creates evry table, index and constraint the application starts from.</summary>
 [DbContext(typeof(WorkspaceDbContext))]
 [Migration("20261026120000_InitialSchema")]
 public sealed class InitialSchema : Migration

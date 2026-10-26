@@ -36,7 +36,7 @@ public sealed record PagedResult<T>(IReadOnlyList<T> Items, int Page, int PageSi
 
 public static class QueryableExtensions
 {
-    /// <summary>Runs a count and a page query for <paramref name="source"/>, mapping rows with <paramref name="map"/>.</summary>
+    /// <summary>Runs a count and a page query for <paramref name="source"/>, mapping rows w/ <paramref name="map"/>.</summary>
     public static async Task<PagedResult<TResult>> ToPagedResultAsync<TSource, TResult>(
         this IQueryable<TSource> source,
         PageRequest page,

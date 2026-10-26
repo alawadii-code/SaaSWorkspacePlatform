@@ -9,7 +9,7 @@ interface LoaderState<T> {
 }
 
 /**
- * Fetch on mount and when dependencies change, with loading and error state
+ * Fetch on mount and when dependencies change, w/ loading and error state
  * and an explicit reload for use after a mutation.
  */
 export function useLoader<T>(load: () => Promise<T>, deps: DependencyList): LoaderState<T> {

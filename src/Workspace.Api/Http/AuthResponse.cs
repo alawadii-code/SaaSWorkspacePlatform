@@ -63,7 +63,7 @@ public static class AuthResponse
     }
 }
 
-/// <summary>Adds response headers that cost nothing and remove whole classes of browser-side risk.</summary>
+/// <summary>Adds response headers that cost nuthin and remove whole classes of browser-side risk.</summary>
 public sealed class SecurityHeadersMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)

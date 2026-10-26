@@ -70,7 +70,7 @@ public class AuditLogTests(ApiFixture fixture)
 
         var page = await ReadTrailAsync(second, secondOrg);
 
-        // Nothing from the other tenant: not its actor, not its resources.
+        // nothing from the other tenant: not its actor, not its resources.
         Assert.All(page.Items, item => Assert.NotEqual(first.UserId, item.ActorUserId));
         Assert.All(page.Items, item => Assert.Equal(second.UserId, item.ActorUserId));
         Assert.DoesNotContain(
@@ -100,7 +100,7 @@ public class AuditLogTests(ApiFixture fixture)
         Assert.DoesNotContain(page.Items, item => item.Action == AuditActions.UserLoggedIn);
         Assert.DoesNotContain(page.Items, item => item.Action == AuditActions.UserRegistered);
 
-        // They are recorded, just without an organization.
+        // They are recorded, just w/o an organization.
         await fixture.ExecuteDbAsync(async db =>
         {
             var accountEvents = await db.CrossTenant<AuditLog>()
@@ -157,7 +157,7 @@ public class AuditLogTests(ApiFixture fixture)
         });
     }
 
-    /// <summary>The database enforces the same rule, so bypassing the application layer does not help: this is the guarantee that makes the trail evidence rather than a convenience log.</summary>
+    /// <summary>The database enforces the same rule, so bypassing the application layer does not help: this is the guarantee that makes the trail evidence insteada a convenience log.</summary>
     [Fact]
     public async Task The_database_rejects_updates_and_deletes_on_the_audit_table()
     {
@@ -185,7 +185,7 @@ public class AuditLogTests(ApiFixture fixture)
         });
     }
 
-    /// <summary>Audit rows hold the organization id as plain data with no foreign key, precisely so the record of a deletion outlives what was deleted.</summary>
+    /// <summary>Audit rows hold the organization id as plain data w/ no foreign key, precisely so the record of a deletion outlives what was deleted.</summary>
     [Fact]
     public async Task The_trail_survives_deletion_of_the_organization()
     {

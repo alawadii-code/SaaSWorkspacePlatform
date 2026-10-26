@@ -3,7 +3,7 @@ using Workspace.Domain.Common;
 
 namespace Workspace.Domain.Entities;
 
-/// <summary>A pending offer of membership, sent by email and redeemed with a token.</summary>
+/// <summary>A pending offer of membership, sent by email and redeemed w/ a token.</summary>
 public class Invitation : Entity, ITenantOwned
 {
     public Guid OrganizationId { get; set; }

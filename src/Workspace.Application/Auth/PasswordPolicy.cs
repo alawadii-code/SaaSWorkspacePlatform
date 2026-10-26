@@ -7,10 +7,10 @@ public static class PasswordPolicy
 {
     public const int MinLength = 12;
 
-    /// <summary>Upper bound so a single request cannot make the server hash megabytes of input as a denial-of-service vector.</summary>
+    /// <summary>Upper bound so a single request cant make the server hash megabytes of input as a denial-of-service vector.</summary>
     public const int MaxLength = 128;
 
-    /// <summary>A deliberately small deny list of the guesses an online attacker tries first.</summary>
+    /// <summary>A on purpose ofc small deny list of the guesses an online attacker tries first.</summary>
     private static readonly FrozenSet<string> CommonPasswords = new[]
     {
         "password", "password1", "password123", "passw0rd", "123456", "1234567",

@@ -24,7 +24,7 @@ public interface ITenantContext
     void Require(Permission permission);
 }
 
-/// <summary>Write side of <see cref="ITenantContext"/>, available only to the hosting layer's middleware so request handlers cannot reassign the tenant.</summary>
+/// <summary>Write side of <see cref="ITenantContext"/>, available only to the hosting layer's middleware so request handlers cant reassign the tenant.</summary>
 public interface ITenantContextSetter
 {
     void Set(Guid organizationId, Guid userId, OrganizationRole role);

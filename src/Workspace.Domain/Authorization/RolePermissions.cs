@@ -57,14 +57,14 @@ public static class RolePermissions
     public static IReadOnlySet<Permission> For(OrganizationRole role) =>
         Matrix.TryGetValue(role, out var permissions)
             ? permissions
-            // Fail closed: an unmapped role gets nothing rather than everything.
+            // Fail closed: an unmapped role gets nuthin insteada everything.
             : FrozenSet<Permission>.Empty;
 
     /// <summary>Whether <paramref name="role"/> grants <paramref name="permission"/>.</summary>
     public static bool Allows(OrganizationRole role, Permission permission) =>
         For(role).Contains(permission);
 
-    /// <summary>Permission names for the API's <c>/me</c> payload, so the frontend can hide controls the caller cannot use.</summary>
+    /// <summary>Permission names for the API's <c>/me</c> payload, so the frontend can hide controls the caller cant use.</summary>
     public static string[] NamesFor(OrganizationRole role) =>
         [.. For(role).Select(p => p.ToString()).Order(StringComparer.Ordinal)];
 }

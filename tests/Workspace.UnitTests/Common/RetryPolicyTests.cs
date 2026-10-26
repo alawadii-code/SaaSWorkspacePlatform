@@ -14,7 +14,7 @@ public class RetryPolicyTests
     public void ShouldRetry_stops_at_the_attempt_limit(int attempt, bool expected) =>
         Assert.Equal(expected, RetryPolicy.ShouldRetry(attempt));
 
-    /// <summary>With jitter pinned, the schedule is deterministic and doubles each attempt: 5s, 10s, 20s, 40s.</summary>
+    /// <summary>W/ jitter pinned, the schedule is deterministic and doubles each attempt: 5s, 10s, 20s, 40s.</summary>
     [Theory]
     [InlineData(1, 5)]
     [InlineData(2, 10)]
@@ -35,7 +35,7 @@ public class RetryPolicyTests
         Assert.Equal(TimeSpan.FromMinutes(15), delay);
     }
 
-    /// <summary>Jitter spreads simultaneous failures apart; it must never produce a zero or negative delay, which would turn a retry into a tight loop.</summary>
+    /// <summary>Jitter spreads simultaneous failures apart; it must nvr produce a zero or negative delay, which wud turn a retry into a tight loop.</summary>
     [Theory]
     [InlineData(0d)]
     [InlineData(0.5d)]

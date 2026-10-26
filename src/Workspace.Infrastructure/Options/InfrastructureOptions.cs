@@ -18,7 +18,7 @@ public sealed class JwtOptions
     [Required]
     public string Audience { get; set; } = "workspace-web";
 
-    /// <summary>Deliberately short: permissions are re-read from the database on every request, but identity is not, so a disabled account keeps working until its access token expires.</summary>
+    /// <summary>Deliberately short: permissions are re-read from the database on evry request, but identity is not, so a disabled account keeps working until its access token expires.</summary>
     [Range(1, 120)]
     public int AccessTokenMinutes { get; set; } = 15;
 
@@ -38,14 +38,14 @@ public sealed class QueueOptions
     public const string RedisProvider = "redis";
     public const string MemoryProvider = "memory";
 
-    /// <summary><c>redis</c> for the real queue, <c>memory</c> for tests and for running the API without Redis.</summary>
+    /// <summary><c>redis</c> for the real queue, <c>memory</c> for tests and for running the API w/o Redis.</summary>
     public string Provider { get; set; } = RedisProvider;
 
     public string ConnectionString { get; set; } = "localhost:6379";
 
     public string KeyPrefix { get; set; } = "workspace:jobs";
 
-    /// <summary>How long the worker waits between polls when the queue is empty.</summary>
+    /// <summary>How long the worker waits btwn polls when the queue is empty.</summary>
     [Range(50, 10_000)]
     public int PollIntervalMs { get; set; } = 500;
 
@@ -74,7 +74,7 @@ public sealed class SmtpOptions
 
     public string? Username { get; set; }
 
-    /// <summary>Supplied by environment or secret store — never committed.</summary>
+    /// <summary>Supplied by environment or secret store — nvr committed.</summary>
     public string? Password { get; set; }
 
     [Required]

@@ -47,7 +47,7 @@ public interface IJobQueueConsumer
     /// <summary>Promotes scheduled messages whose run time has arrived.</summary>
     Task<int> PromoteScheduledAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>Returns messages whose handler never acknowledged them — a worker that crashed mid-job — to the ready queue once their visibility timeout has passed.</summary>
+    /// <summary>Returns messages whose handler nvr acknowledged them — a worker that crashed mid-job — to the ready queue once their visibility timeout has passed.</summary>
     Task<int> RecoverStuckAsync(CancellationToken cancellationToken = default);
 }
 

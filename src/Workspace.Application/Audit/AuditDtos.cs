@@ -14,7 +14,7 @@ public sealed record AuditLogDto(
     string? CorrelationId,
     DateTimeOffset CreatedAt);
 
-/// <summary>Filters for the audit log endpoint; every field is optional.</summary>
+/// <summary>Filters for the audit log endpoint; evry field is optional.</summary>
 public sealed record AuditLogQuery(
     string? Action = null,
     string? ResourceType = null,

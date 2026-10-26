@@ -84,7 +84,7 @@ public sealed class InvitationService(
 
         await db.SaveChangesAsync(cancellationToken);
 
-        // Queued after the commit so the worker cannot pick up an invitation that is not
+        // Queued after the commit so the worker cant pick up an invitation thatz not
         // there yet. A failed enqueue is recovered by ReconcileUndeliveredAsync.
         await EnqueueEmailAsync(invitation.Id, plaintext, cancellationToken);
 
@@ -265,7 +265,7 @@ public sealed class InvitationService(
             invitation.Role);
     }
 
-    /// <summary>Worker pass: marks pending invitations whose expiry has passed, so the member list stops offering to resend links that cannot be redeemed.</summary>
+    /// <summary>Worker pass: marks pending invitations whose expiry has passed, so the member list stops offering to resend links that cant be redeemed.</summary>
     public async Task<int> ExpireStaleAsync(int batchSize = 200, CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;
@@ -290,7 +290,7 @@ public sealed class InvitationService(
         return stale.Count;
     }
 
-    /// <summary>Worker pass: finds pending invitations whose email was never queued and queues it.</summary>
+    /// <summary>Worker pass: finds pending invitations whose email was nvr queued and queues it.</summary>
     public async Task<int> ReconcileUndeliveredAsync(int batchSize = 50, CancellationToken cancellationToken = default)
     {
         var now = clock.UtcNow;

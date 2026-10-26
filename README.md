@@ -1,19 +1,19 @@
-# Workspace
+# workspace
 
-A multi-tenant SaaS workspace platform: people belong to one or more
-organizations, each with its own projects, tasks, members and audit trail.
+a multi-tenant SaaS workspace platform: people belong to one or more orgs, each
+w/ its own projects, tasks, members n audit trail.
 
-ASP.NET Core 10 (minimal APIs) · PostgreSQL 16 + EF Core · Redis-backed job
+ASP.NET Core 10 (minimal APIs) · PostgreSQL 16 + EF Core · redis-backed job
 queue · React 19 + TypeScript + Vite · Docker Compose.
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — tenancy, authorization,
-  auditing, background work, and the trade-offs behind them.
+  auditing, background work n the tradeoffs behind all of it
 - [docs/API.md](docs/API.md) — endpoints, required permissions, error contract.
-  The running API also serves `/docs` and `/openapi/v1.json`.
+  the running API also serves `/docs` n `/openapi/v1.json`
 
-## Quick start
+## quick start
 
-Requires Docker with Compose v2.
+needs Docker w/ Compose v2.
 
 ```bash
 cp .env.example .env
@@ -28,26 +28,26 @@ docker compose up --build
 
 | | |
 | --- | --- |
-| Web app | <http://localhost:8080> |
+| web app | <http://localhost:8080> |
 | API | <http://localhost:5080> |
 | API reference | <http://localhost:5080/docs> |
-| Mail catcher | <http://localhost:8025> |
-| Health | `/health` and `/health/ready` |
+| mail catcher | <http://localhost:8025> |
+| health | `/health` n `/health/ready` |
 
-The API applies migrations on startup, so the stack is usable once the
-containers report healthy.
+the API applies migrations on startup sOoo the stack is usable as soon as the
+containers go healthy.
 
-### Walkthrough
+### walkthrough
 
-1. Create an account at <http://localhost:8080> (password: 12+ characters).
-2. Create an organization. You become its owner.
-3. **People → Invite someone**, as a Member.
-4. Open <http://localhost:8025>. The invitation email is there, sent by the
-   worker rather than by the web request. Follow the accept link.
-5. Register with the invited address and accept.
-6. As that member, note there is no "create project" control, and the API
-   returns 403 if you call it directly. Create a task instead.
-7. As the owner, open the audit log: every action is there with its actor.
+1. make an account at <http://localhost:8080> (password: 12+ chars)
+2. create an org — u become its owner
+3. **People → Invite someone**, as a Member
+4. open <http://localhost:8025>. the invitation email is sitting there, sent by
+   the worker n not by the web request. follow the accept link
+5. register w/ the invited address n accept
+6. as that member, notice theres no "create project" control, n the API returns
+   403 if u call it directly anyway. make a task instead
+7. back as the owner, open the audit log: evry action is there w/ its actor
 
 ```bash
 docker compose logs -f api worker
@@ -55,9 +55,9 @@ docker compose exec postgres psql -U workspace -d workspace
 docker compose down -v
 ```
 
-## Running without Docker
+## running w/o docker
 
-Requires .NET SDK 10, Node 22, PostgreSQL 16 and Redis 7.
+needs .NET SDK 10, Node 22, PostgreSQL 16 n Redis 7.
 
 ```bash
 export ConnectionStrings__Postgres="Host=localhost;Port=5432;Database=workspace;Username=postgres;Password=postgres"
@@ -68,12 +68,11 @@ dotnet run --project src/Workspace.Worker     # second shell, same two variables
 cd web && npm install && npm run dev          # http://localhost:5173
 ```
 
-The dev server proxies `/api` to the API, so the browser sees one origin and
-the refresh cookie stays first-party. Without Redis, set
-`Queue__Provider=memory`. Email is logged rather than sent unless
-`Smtp__Enabled=true`.
+the dev server proxies `/api` to the API sOoo the browser sees one origin n the
+refresh cookie stays first-party. w/o redis just set `Queue__Provider=memory`.
+email is logged insteada sent unless `Smtp__Enabled=true`.
 
-## Tests
+## tests
 
 ```bash
 dotnet test tests/Workspace.UnitTests
@@ -82,24 +81,24 @@ export WORKSPACE_TEST_POSTGRES="Host=localhost;Port=5432;Username=postgres;Passw
 dotnet test tests/Workspace.IntegrationTests
 ```
 
-Integration tests create a uniquely named database per run and drop it
-afterwards. If the stack is already running, point `WORKSPACE_TEST_POSTGRES` at
-the Compose database on `localhost:5432`.
+integration tests create a uniquely named database per run n drop it after, sOoo
+they nvr collide n leave nuthin behind. if the stack is already up just point
+`WORKSPACE_TEST_POSTGRES` at the compose database on `localhost:5432`.
 
-Coverage:
+what they cover:
 
-| Area | Covered |
+| area | covered |
 | --- | --- |
-| Tenant isolation | Another tenant's owner gets 404 for an organization, project, task list, audit trail and invitations; a task cannot be created in another tenant's project or assigned to a non-member |
-| Authorization | Each role against each operation; a member may edit only their own tasks; an admin cannot grant Owner or act on an owner; nobody changes their own role; the last owner cannot leave |
-| Authentication | Registration, sign-in, refresh rotation, replay detection revoking the session, sign-out, lockout, identical responses for wrong password and unknown account |
-| Invitations | Queued not sent inline, delivered by the worker, single-use, email-bound, revocable, resendable, expiring, failure recorded |
-| Audit | Written in the action's transaction, tenant-scoped, rejected on update and delete by both application and database, surviving tenant deletion |
-| Operations | Liveness, readiness, OpenAPI document, security headers, malformed JSON handled without a stack trace |
+| tenant isolation | another tenants owner gets 404 for an org, project, task list, audit trail n invitations; a task cant be created in another tenants project or assigned to a non-member |
+| authorization | each role against each operation; a member can only edit their own tasks; an admin cant grant Owner or act on an owner; nobody changes their own role; the last owner cant leave |
+| authentication | registration, sign-in, refresh rotation, replay detection killing the session, sign-out, lockout, identical responses for wrong password vs unknown account |
+| invitations | queued not sent inline, delivered by the worker, single-use, email-bound, revocable, resendable, expiring, failures recorded |
+| audit | written in the actions transaction, tenant-scoped, rejected on update n delete by both app n database, survives tenant deletion |
+| operations | liveness, readiness, OpenAPI document, security headers, malformed JSON handled w/o a stack trace |
 
-Frontend: `npm run build` in `web/` typechecks and builds.
+frontend: `npm run build` in `web/` typechecks n builds.
 
-## Layout
+## layout
 
 ```
 src/
@@ -114,35 +113,35 @@ docker/
 docs/
 ```
 
-## Configuration
+## configuration
 
-Read from the environment; `__` maps to a configuration separator, so
+read from the environment; `__` maps to a config separator, sOoo
 `Jwt__SigningKey` sets `Jwt:SigningKey`.
 
-| Variable | Default | Notes |
+| variable | default | notes |
 | --- | --- | --- |
-| `ConnectionStrings__Postgres` | — | Required |
-| `Jwt__SigningKey` | — | Required, 32+ chars. Startup fails outside Development if missing or left at the example value |
+| `ConnectionStrings__Postgres` | — | required |
+| `Jwt__SigningKey` | — | required, 32+ chars. startup fails outside Development if itz missing or still the example value |
 | `Jwt__AccessTokenMinutes` | `15` | |
 | `Jwt__RefreshTokenDays` | `14` | |
-| `Auth__UseSecureCookies` | `true` | Startup fails outside Development if false |
-| `Auth__ReturnRefreshTokenInBody` | `false` | For non-browser clients |
-| `Database__MigrateOnStartup` | `true` | Set false in production; migrate as a release step |
-| `Queue__Provider` | `redis` | `memory` runs without Redis |
-| `Smtp__Enabled` | `false` | When false, email is logged |
+| `Auth__UseSecureCookies` | `true` | startup fails outside Development if false |
+| `Auth__ReturnRefreshTokenInBody` | `false` | for non-browser clients |
+| `Database__MigrateOnStartup` | `true` | set false in prod n migrate as a release step |
+| `Queue__Provider` | `redis` | `memory` runs w/o redis |
+| `Smtp__Enabled` | `false` | when false, email is logged |
 | `Invitations__LifetimeDays` | `7` | |
-| `Invitations__AcceptUrlTemplate` | localhost | `{token}` is substituted |
-| `Cors__AllowedOrigins__0` | — | Only needed when the frontend is on another origin |
+| `Invitations__AcceptUrlTemplate` | localhost | `{token}` gets substituted |
+| `Cors__AllowedOrigins__0` | — | only needed when the frontend is on another origin |
 
-`.env` is git-ignored and `.env.example` holds placeholders only. No
-credential is committed anywhere in this repository.
+`.env` is git-ignored n `.env.example` holds placeholders only. no credential
+is committed anywhere in this repo.
 
-## Database
+## database
 
-Schema in
+schema lives in
 [`Persistence/Migrations/Sql/`](src/Workspace.Infrastructure/Persistence/Migrations/Sql),
-applied by EF Core and tracked in `__EFMigrationsHistory`. See that folder's
-README for why it is written as SQL.
+applied by EF Core n tracked in `__EFMigrationsHistory`. that folders README
+explains why itz written as SQL.
 
 ```
 users ──< memberships >── organizations ──< projects ──< tasks

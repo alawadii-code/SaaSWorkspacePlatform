@@ -28,7 +28,7 @@ public sealed class InMemoryJobQueue(IOptions<QueueOptions> options, IClock cloc
         }
     }
 
-    /// <summary>Jobs that exhausted their attempts, with the final error.</summary>
+    /// <summary>Jobs that exhausted their attempts, w/ the final error.</summary>
     public IReadOnlyList<(JobMessage Message, string Error)> DeadLettered
     {
         get

@@ -132,7 +132,7 @@ public class JwtTokenServiceTests
         Assert.NotEqual(first.Plaintext, second.Plaintext);
         Assert.NotEqual(first.Hash, second.Hash);
 
-        // 256 bits, base64url-encoded, with no characters needing escaping.
+        // 256 bits, base64url-encoded, w/ no characters needing escaping.
         Assert.Equal(43, first.Plaintext.Length);
         Assert.All(first.Plaintext, c => Assert.True(char.IsAsciiLetterOrDigit(c) || c is '-' or '_'));
     }

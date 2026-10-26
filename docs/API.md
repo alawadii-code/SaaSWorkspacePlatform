@@ -1,6 +1,6 @@
 # API reference
 
-Base URL in the Compose stack: `http://localhost:5080` (or `/api` through the
+ok sOoo base URL in the Compose stack: `http://localhost:5080` (or `/api` thru the
 web origin at `http://localhost:8080`).
 
 A generated OpenAPI document is served at `/openapi/v1.json`, and a browsable
@@ -19,24 +19,24 @@ Send the access token as a bearer token:
 Authorization: Bearer <access token>
 ```
 
-Access tokens last 15 minutes and carry identity only — no role or permission
-claim. Roles are read from the database on every request, so a role change or a
+access tokens last 15 minutes and carry identity only — no role or permission
+claim. ok sOoo roles are read from the database on evry request, so a role change or a
 removal applies to the caller's next call.
 
 The refresh token is returned as an `HttpOnly`, `SameSite=Lax` cookie scoped to
-`/api/auth`. Browsers need no code for it. Non-browser clients can enable
+`/api/auth`. sOoo browsers need no code for it. non-browser clients can enable
 `Auth:ReturnRefreshTokenInBody` and post it explicitly to `/api/auth/refresh`.
 
 ### Tenant scope
 
-Everything tenant-specific lives under `/api/organizations/{organizationId}`.
+ok sOoo everything tenant-specific lives under `/api/organizations/{organizationId}`.
 The caller's membership of that organization is resolved per request; if there
 is none, the response is **`404`, not `403`** — the API does not confirm that
 another tenant's resources exist.
 
 ### Errors
 
-Every failure is an RFC 9457 problem document:
+basically every failure is an RFC 9457 problem document:
 
 ```json
 {
@@ -50,7 +50,7 @@ Every failure is an RFC 9457 problem document:
 }
 ```
 
-Branch on `code`, not on `detail`.
+ngl branch on `code`, not on `detail`.
 
 | `code` | Status | Meaning |
 | --- | --- | --- |
@@ -62,10 +62,10 @@ Branch on `code`, not on `detail`.
 | `reference_invalid` | 409 | Referenced resource does not exist |
 | `validation_failed` | 422 | Field-level problems, in `errors` |
 | `rate_limited` | 429 | Too many requests; see `Retry-After` |
-| `malformed_request` | 400 | Body could not be parsed |
+| `malformed_request` | 400 | Body cud not be parsed |
 | `internal_error` | 500 | Quote `correlationId` when reporting |
 
-Validation failures add an `errors` object keyed by field:
+validation failures add an `errors` object keyed by field:
 
 ```json
 {
@@ -77,13 +77,13 @@ Validation failures add an `errors` object keyed by field:
 
 ### Correlation
 
-Every response carries `X-Correlation-Id`. Send your own (letters, digits,
-`-`, `_`, up to 64 characters) and it is echoed back, written to the server log
+every response carries `X-Correlation-Id`. send ur own (letters, digits,
+`-`, `_`, up to 64 characters) and itz echoed back, written to the server log
 and stored on any audit entry the request produces.
 
 ### Paging
 
-List endpoints take `page` (default 1) and `pageSize` (default 20, **max
+list endpoints take `page` (default 1) and `pageSize` (default 20, **max
 100** — a larger value is capped, not rejected) and return:
 
 ```json
@@ -99,7 +99,7 @@ List endpoints take `page` (default 1) and `pageSize` (default 20, **max
 
 ### Enumerations
 
-Sent and returned as names, never numbers.
+sent and returned as names, nvr numbers.
 
 | Type | Values |
 | --- | --- |
@@ -122,7 +122,7 @@ Sent and returned as names, never numbers.
 
 ## Permissions
 
-What each role may do. Endpoints below name the permission they require.
+what each role may do. endpoints below name the permission they require.
 
 | Permission | Viewer | Member | Admin | Owner |
 | --- | :-: | :-: | :-: | :-: |
@@ -147,13 +147,13 @@ What each role may do. Endpoints below name the permission they require.
 | `AuditRead` | | | ● | ● |
 | `OrganizationDelete` | | | | ● |
 
-Rules the matrix cannot express, enforced server-side:
+Rules the matrix cant express, enforced server-side:
 
 - An admin may not act on an owner, nor grant the Owner role.
 - Nobody may change their own role.
 - An organization must always keep at least one owner.
 - A member may update only tasks they created or are assigned to.
-- A task's assignee must be a member of the same organization.
+- A task's assignee must be a member of the same organization tbh
 
 ---
 
@@ -161,7 +161,7 @@ Rules the matrix cannot express, enforced server-side:
 
 ### `POST /api/auth/register`
 
-Creates an account and signs it in. Does **not** create an organization.
+Creates an account and signs it in. sOoo does **not** create an organization.
 
 ```http
 POST /api/auth/register
@@ -180,38 +180,38 @@ Content-Type: application/json
 }
 ```
 
-Password rules: 12–128 characters, not a common guess, not containing your
-email or name. `409` if the address is already registered; `422` with field
+Password rules: 12–128 characters, not a common guess, not containing ur
+email or name. `409` if the address is already registered; `422` w/ field
 errors otherwise.
 
 ### `POST /api/auth/login`
 
-Same response shape. Every failure — unknown account, wrong password, disabled,
-locked — returns the same `401` and the same message, by design. Ten
+same response shape. every failure — unknown account, wrong password, disabled,
+locked — returns the same `401` and the same message, by design. ok sOoo ten
 consecutive failures lock the account for 15 minutes, which is not disclosed.
 
 ### `POST /api/auth/refresh`
 
-Body optional; the cookie is used when it is absent.
+Body optional; the cookie is used when itz absent lol
 
 ```json
 { "refreshToken": "<only for non-browser clients>" }
 ```
 
-Rotates the token. Replaying an already-rotated token revokes the whole chain
-and returns `401` — the session ends, because a replayed token means it was
+rotates the token. ok sOoo replaying an already-rotated token revokes the whole chain
+and returns `401` — the session ends, cuz a replayed token means it was
 captured.
 
 ### `POST /api/auth/logout` → `204`
 
-Revokes the whole rotation chain and clears the cookie. Succeeds either way, so
-it cannot be used to test whether a token was valid.
+Revokes the whole rotation chain and clears the cookie. succeeds either way, so
+it cant be used to test whether a token was valid.
 
 ### `GET /api/auth/me`
 
-The caller and their organizations, each with the permissions their role grants
-there. The frontend uses this to decide what to render; the server authorizes
-every request regardless.
+the caller and their organizations, each w/ the permissions their role grants
+there. the frontend uses this to decide what to render; the server authorizes
+evry request regardless.
 
 ```json
 {
@@ -254,8 +254,8 @@ POST /api/organizations
 }
 ```
 
-Deletion requires `?confirm=<slug>` to match exactly — an irreversible
-whole-tenant operation should not be reachable by a mistyped URL. It cascades
+deletion requires `?confirm=<slug>` to match exactly — an irreversible
+whole-tenant operation shud not be reachable by a mistyped URL. it cascades
 to members, invitations, projects and tasks. The **audit trail survives**.
 
 ---
@@ -274,13 +274,13 @@ PATCH /api/organizations/{id}/members/{userId}/role
 { "role": "Admin" }
 ```
 
-`403` when an admin targets an owner, grants Owner, or anyone targets
-themselves. `409` when the change would leave the organization without an
+`403` when an admin targets an owner, grants Owner, or anyone targets ngl
+themselves. `409` when the change wud leave the organization w/o an
 owner, or when the member already has that role.
 
-Removing a member — or leaving — also clears that person's task assignments, so
-no task is left assigned to someone who can no longer see it. The last owner
-cannot leave: promote someone first.
+sOoo removing a member — or leaving — also btw clears that person's task assignments, so
+no task is left assigned to someone who can no longer see it. the last owner
+cant leave: promote someone first.
 
 ---
 
@@ -309,15 +309,15 @@ POST /api/organizations/{id}/invitations
 }
 ```
 
-The request returns as soon as the invitation is stored; the **email is sent by
+the request returns as soon as the invitation is stored; the **email is sent by
 the background worker**. `deliveryStatus` and `deliveryError` let an admin see
 that a send failed and resend.
 
-**The token is never returned by the API.** It exists in the email and in the
+**The token is nvr returned by the API.** It exists in the email and in the
 queued job; the database holds only its SHA-256 hash.
 
 `409` when the person is already a member, or an invitation is already pending
-for that address. `403` when an admin tries to invite an Owner.
+for that address. `403` when an admin tries to invite an Owner lol
 
 `POST .../resend` issues a **new** token, so the previous link stops working.
 `DELETE` rotates the stored hash, so a link already sitting in an inbox stops
@@ -336,7 +336,7 @@ GET /api/invitations/preview?token=<token>
 }
 ```
 
-Anonymous, so the accept screen can show who invited whom before sign-in, and
+basically anonymous, so the accept screen can show who invited whom before sign-in, and
 limited to those fields: no organization id, no member list, no inviter
 address.
 
@@ -375,10 +375,10 @@ POST /api/organizations/{id}/projects
 }
 ```
 
-Slugs are unique **per organization**, so two tenants can both have
+slugs are unique **per organization**, so two tenants can both have
 `website-redesign`; a duplicate within one organization gets a suffix. `PUT`
 replaces name, description and status — setting `Archived` stamps `archivedAt`
-and blocks new tasks (`409`). Deleting a project deletes its tasks.
+and blocks new tasks (`409`). ok sOoo deleting a project deletes its tasks.
 
 ---
 
@@ -389,7 +389,7 @@ and blocks new tasks (`409`). Deleting a project deletes its tasks.
 | `GET /api/organizations/{id}/tasks?projectId=&status=&assigneeUserId=&search=&page=` | `TaskRead` |
 | `GET /api/organizations/{id}/tasks/{taskId}` | `TaskRead` |
 | `POST /api/organizations/{id}/projects/{projectId}/tasks` | `TaskCreate` |
-| `PUT /api/organizations/{id}/tasks/{taskId}` | `TaskUpdateAny`, or `TaskUpdateOwn` for your own |
+| `PUT /api/organizations/{id}/tasks/{taskId}` | `TaskUpdateAny`, or `TaskUpdateOwn` for ur own |
 | `POST /api/organizations/{id}/tasks/{taskId}/assign` | `TaskAssign` |
 | `DELETE /api/organizations/{id}/tasks/{taskId}` | `TaskDelete` |
 
@@ -405,11 +405,11 @@ PUT /api/organizations/{id}/tasks/{taskId}
   "status": "Done", "priority": "High", "dueAt": null }
 ```
 
-`completedAt` is derived from `status`, never accepted from the client: moving
+`completedAt` is derived from `status`, nvr accepted from the client: moving
 to `Done` stamps it, moving away clears it.
 
-Assignment is a separate operation so that "field omitted" and "clear the
-assignee" cannot be confused:
+assignment is a separate operation so that "field omitted" and "clear the
+assignee" cant be confused:
 
 ```http
 POST /api/organizations/{id}/tasks/{taskId}/assign
@@ -448,14 +448,14 @@ someone else's task gets `403`; a project id from another tenant gets `404`.
 }
 ```
 
-Read-only: there is no endpoint that writes, edits or deletes an entry.
-Entries are written in the same transaction as the action they record, and the
+sOoo read-only: there is no endpoint that writes, edits or deletes an entry.
+ok sOoo entries are written in the same transaction as the action they record, and the
 database rejects `UPDATE`, `DELETE` and `TRUNCATE` on the table.
 
-Account-level events (sign-in, failed sign-in, refresh replay) carry no
-organization and never appear here; they are recorded for operators.
+account-level events (sign-in, failed sign-in, refresh replay) carry no
+organization and nvr appear here; they are recorded for operators.
 
-Recorded actions: `organization.created|updated|deleted`,
+ngl recorded actions: `organization.created|updated|deleted`,
 `member.invited|invitation_revoked|invitation_accepted|role_changed|removed|left`,
 `project.created|updated|deleted`, `task.created|updated|assigned|deleted`, and
 account-level `user.registered|logged_in|login_failed|logged_out`,
@@ -467,7 +467,7 @@ account-level `user.registered|logged_in|login_failed|logged_out`,
 
 | Endpoint | Purpose |
 | --- | --- |
-| `GET /health` | Liveness — no dependency checks, so a database blip never gets a healthy API restarted |
+| `GET /health` | Liveness — no dependency checks, so a database blip nvr gets a healthy API restarted |
 | `GET /health/ready` | Readiness — database (unhealthy if down) and Redis (degraded, since email is reconciled later) |
 | `GET /openapi/v1.json` | OpenAPI document |
 | `GET /docs` | Browsable reference |

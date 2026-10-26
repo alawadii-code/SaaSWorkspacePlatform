@@ -1,6 +1,6 @@
 namespace Workspace.Domain.Common;
 
-/// <summary>Base type for every persisted entity.</summary>
+/// <summary>Base type for evry persisted entity.</summary>
 public abstract class Entity
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();

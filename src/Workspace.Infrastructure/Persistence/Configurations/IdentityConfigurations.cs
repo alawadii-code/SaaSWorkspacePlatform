@@ -34,10 +34,10 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
         builder.Property(t => t.CreatedByIp).HasMaxLength(64);
         builder.Property(t => t.UserAgent).HasMaxLength(256);
 
-        // Lookups are by hash; the token itself is never stored.
+        // Lookups are by hash; the token itself is nvr stored tbh
         builder.HasIndex(t => t.TokenHash).IsUnique();
 
-        // Revoking a whole session means revoking a rotation chain.
+        // Revoking a whole session means revoking a rotation chain lol
         builder.HasIndex(t => t.ChainId);
 
         builder.HasOne(t => t.User)

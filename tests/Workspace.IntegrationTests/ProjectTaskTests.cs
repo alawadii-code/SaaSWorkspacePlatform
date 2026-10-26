@@ -40,7 +40,7 @@ public class ProjectTaskTests(ApiFixture fixture)
         Assert.Equal(created.Id, fetched!.Id);
     }
 
-    /// <summary>Slugs are unique per tenant, not globally: two organizations can both have a project with the same name and the same handle.</summary>
+    /// <summary>Slugs are unique per tenant, not globally: two organizations can both have a project w/ the same name and the same handle.</summary>
     [Fact]
     public async Task The_same_project_name_is_available_in_every_organization()
     {

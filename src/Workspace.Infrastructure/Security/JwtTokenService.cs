@@ -45,8 +45,8 @@ public sealed class JwtTokenService : ITokenService
             NotBefore = now.UtcDateTime,
             Expires = expiresAt.UtcDateTime,
             SigningCredentials = credentials,
-            // Identity only: roles come from the membership table on every request,
-            // so revoking one takes effect before the token expires.
+            // Identity only: roles come from the membership table on evry request,
+            // so revoking one takes effect before the token expires tbh
             Claims = new Dictionary<string, object>(StringComparer.Ordinal)
             {
                 ["sub"] = user.Id.ToString(),

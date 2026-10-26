@@ -11,13 +11,13 @@ using Workspace.Domain.Authorization;
 
 namespace Workspace.IntegrationTests.Fixtures;
 
-/// <summary>A registered, signed-in user with their own HTTP client.</summary>
+/// <summary>A registered, signed-in user w/ their own HTTP client.</summary>
 public sealed record TestUser(HttpClient Client, Guid UserId, string Email, string Password, string AccessToken);
 
-/// <summary>Scenario helpers so each test reads as the behaviour it asserts rather than as a sequence of HTTP calls.</summary>
+/// <summary>Scenario helpers so each test reads as the behaviour it asserts insteada as a sequence of HTTP calls.</summary>
 public static class ApiScenarios
 {
-    /// <summary>A passphrase that satisfies the password policy and shares no fragment with the test display name or email addresses.</summary>
+    /// <summary>A passphrase that satisfies the password policy and shares no fragment w/ the test display name or email addresses.</summary>
     public const string Password = "correct-horse-battery-staple-9";
 
     public const string DisplayName = "Sam Rivers";
@@ -59,7 +59,7 @@ public static class ApiScenarios
         return organization!.Id;
     }
 
-    /// <summary>Invites an address and returns the invitation id together with the plaintext token.</summary>
+    /// <summary>Invites an address and returns the invitation id together w/ the plaintext token.</summary>
     public static async Task<(Guid InvitationId, string Token)> InviteAsync(
         this ApiFixture fixture,
         TestUser inviter,
@@ -115,7 +115,7 @@ public static class ApiScenarios
         return member;
     }
 
-    /// <summary>Runs every queued job through its handler, the way the worker would.</summary>
+    /// <summary>Runs evry queued job thru its handler, the way the worker wud.</summary>
     public static async Task<int> DrainJobsAsync(this ApiFixture fixture)
     {
         var queue = fixture.Queue;
@@ -183,7 +183,7 @@ public static class ApiScenarios
         return task!.Id;
     }
 
-    /// <summary>Runs an action against the application's own DbContext, for setting up states the API deliberately cannot produce (an invitation whose expiry has passed) and for asserting database-level guarantees.</summary>
+    /// <summary>Runs an action against the application's own DbContext, for setting up states the API on purpose ofc cant produce (an invitation whose expiry has passed) and for asserting database-level guarantees.</summary>
     public static async Task ExecuteDbAsync(
         this ApiFixture fixture,
         Func<Workspace.Infrastructure.Persistence.WorkspaceDbContext, Task> action)

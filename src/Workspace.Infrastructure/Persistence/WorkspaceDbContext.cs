@@ -104,7 +104,7 @@ public sealed class WorkspaceDbContext(
         }
     }
 
-    /// <summary>Application-level half of the audit guarantee: audit rows may be inserted, never changed or removed.</summary>
+    /// <summary>Application-level half of the audit guarantee: audit rows may be inserted, nvr changed or removed.</summary>
     private void GuardAuditImmutability()
     {
         var tampered = ChangeTracker.Entries<AuditLog>()

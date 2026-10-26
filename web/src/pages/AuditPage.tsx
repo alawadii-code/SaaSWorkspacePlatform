@@ -15,7 +15,7 @@ import {
 import { useLoader } from '../hooks/useLoader';
 
 /**
- * The organization's audit trail: read-only by design. There is no API path
+ * the organization's audit trail: read-only by design. There is no API path
  * that edits or deletes an entry, and the database rejects both.
  */
 export function AuditPage() {

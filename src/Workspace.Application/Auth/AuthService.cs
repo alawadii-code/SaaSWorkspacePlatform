@@ -75,7 +75,7 @@ public sealed class AuthService(
 
         if (user is null)
         {
-            // Equalize work with the found-account path before failing.
+            // Equalize work w/ the found-account path before failing.
             passwordHasher.Verify(GetDecoyHash(), request.Password);
 
             audit.RecordFor(
@@ -172,7 +172,7 @@ public sealed class AuthService(
             throw new UnauthorizedException("Invalid refresh token.");
         }
 
-        // An already-rotated token being presented again means it was captured.
+        // an already-rotated token being presented again means it was captured tbh
         if (stored.RevokedAt is not null)
         {
             await RevokeChainAsync(stored.ChainId, "reuse_detected", now, cancellationToken);
@@ -215,7 +215,7 @@ public sealed class AuthService(
         return BuildResult(user, replacement.Plaintext);
     }
 
-    /// <summary>Revokes the presented token and everything else in its rotation chain, so signing out ends the session rather than one token in it.</summary>
+    /// <summary>Revokes the presented token and everything else in its rotation chain, so signing out ends the session insteada one token in it.</summary>
     public async Task LogoutAsync(string? refreshToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
@@ -248,7 +248,7 @@ public sealed class AuthService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>The caller's profile and the organizations they belong to, each with the permissions their role grants there.</summary>
+    /// <summary>The caller's profile and the organizations they belong to, each w/ the permissions their role grants there.</summary>
     public async Task<MeResponse> GetMeAsync(CancellationToken cancellationToken = default)
     {
         var userId = currentUser.RequireUserId();

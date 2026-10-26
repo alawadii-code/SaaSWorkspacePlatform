@@ -68,7 +68,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
     {
         builder.UseEnvironment("Testing");
 
-        // Added last, so these win over appsettings.json.
+        // ngl added last, so these win over appsettings.json.
         builder.ConfigureAppConfiguration(configuration =>
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
@@ -79,13 +79,13 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
                 ["Jwt:Issuer"] = "workspace-api-tests",
                 ["Jwt:Audience"] = "workspace-web-tests",
 
-                // TestServer speaks http, so the cookie cannot be Secure here.
+                // ok sOoo testServer speaks http, so the cookie cant be Secure here.
                 ["Auth:UseSecureCookies"] = "false",
 
-                // Lets tests exercise the API-client path as well as the cookie.
+                // ngl lets tests exercise the API-client path as well as the cookie.
                 ["Auth:ReturnRefreshTokenInBody"] = "true",
 
-                // Deterministic queue, inspectable by tests.
+                // basically deterministic queue, inspectable by tests.
                 ["Queue:Provider"] = "memory",
                 ["Queue:PollIntervalMs"] = "50",
                 ["Queue:VisibilityTimeoutSeconds"] = "60",
@@ -106,7 +106,7 @@ public sealed class ApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
     }
 }
 
-/// <summary>One database and one API host shared by every test class.</summary>
+/// <summary>One database and one API host shared by evry test class.</summary>
 [CollectionDefinition(ApiCollection.Name)]
 public sealed class ApiCollection : ICollectionFixture<ApiFixture>
 {

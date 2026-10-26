@@ -25,14 +25,14 @@ public sealed class ForbiddenException(string message = "You do not have permiss
     public override int StatusCode => StatusCodes.Forbidden;
 }
 
-/// <summary>Resource does not exist — or exists in another tenant, which is reported identically on purpose so the API cannot be used to probe for the existence of other organizations' data.</summary>
+/// <summary>Resource does not exist — or exists in another tenant, which is reported identically on purpose so the API cant be used to probe for the existence of other organizations' data.</summary>
 public sealed class NotFoundException(string resource = "Resource")
     : AppException("not_found", $"{resource} was not found.")
 {
     public override int StatusCode => StatusCodes.NotFound;
 }
 
-/// <summary>Request conflicts with current state (duplicate, or a violated invariant).</summary>
+/// <summary>Request conflicts w/ current state (duplicate, or a violated invariant).</summary>
 public sealed class ConflictException(string message) : AppException("conflict", message)
 {
     public override int StatusCode => StatusCodes.Conflict;

@@ -58,7 +58,7 @@ public class AuthFlowTests(ApiFixture fixture)
             new { email = user.Email.ToUpperInvariant(), password = ApiScenarios.Password, displayName = "Someone Else" },
             ApiScenarios.Json);
 
-        // Case-insensitive: the normalized column carries the unique index.
+        // case-insensitive: the normalized column carries the unique index.
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
 
@@ -180,7 +180,7 @@ public class AuthFlowTests(ApiFixture fixture)
 
         await login.EnsureSuccessAsync();
 
-        // No body at all: the HttpOnly cookie set by login is the credential.
+        // no body at all: the HttpOnly cookie set by login is the credential.
         var refreshed = await client.PostAsync("/api/auth/refresh", content: null);
 
         await refreshed.EnsureSuccessAsync();

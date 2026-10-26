@@ -39,8 +39,8 @@ export function MembersPage() {
     [organizationId],
   );
 
-  // Only admins and above may read invitations, so this request is skipped for
-  // everyone else rather than firing and being refused.
+  // basically only admins and above may read invitations, so this request is skipped for
+  // everyone else insteada firing and being refused.
   const invitations = useLoader<Paged<Invitation> | null>(
     () =>
       can('InvitationRead')
@@ -49,7 +49,7 @@ export function MembersPage() {
     [organizationId, can('InvitationRead')],
   );
 
-  // An owner can only grant Owner; an admin cannot.
+  // an owner can only grant Owner; an admin cant.
   const grantableRoles = assignableRoles.filter((candidate) =>
     candidate === 'Owner' ? role === 'Owner' : true,
   );

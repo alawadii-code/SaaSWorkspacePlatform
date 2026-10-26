@@ -104,7 +104,7 @@ export function EmptyState({ title, description }: { title: string; description?
 }
 
 /**
- * Shows an API failure in the terms the server used. Problem documents carry a
+ * Shows an API failure in the terms the server used lol sOoo problem documents carry a
  * human-readable detail, so there is no need to invent a message.
  */
 export function ErrorBanner({ error }: { error: unknown }) {

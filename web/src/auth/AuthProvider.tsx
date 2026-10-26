@@ -132,9 +132,9 @@ export function useAuth(): AuthContextValue {
 }
 
 /**
- * The caller's membership in one organization, with a permission check. This
- * decides what the UI offers, not what is allowed: the server authorizes
- * every request regardless.
+ * ok sOoo the caller's membership in one organization, w/ a permission check. This
+ * decides what the UI offers, not what is allowed: the server authorizes lol
+ * evry request regardless tbh
  */
 export function useMembership(organizationId: string | undefined) {
   const { organizations } = useAuth();

@@ -174,7 +174,7 @@ public sealed class ProjectService(
             project.Id.ToString(),
             new { name = project.Name, slug = project.Slug });
 
-        // Tasks cascade at the database level.
+        // Tasks cascade at the database level tbh
         db.Projects.Remove(project);
 
         await db.SaveChangesAsync(cancellationToken);

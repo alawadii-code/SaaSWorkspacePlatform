@@ -11,11 +11,11 @@ public sealed class InvitationOptions
     [Range(1, 90)]
     public int LifetimeDays { get; set; } = 7;
 
-    /// <summary>Accept-link template; <c>{token}</c> is replaced with the plaintext token.</summary>
+    /// <summary>Accept-link template; <c>{token}</c> is replaced w/ the plaintext token.</summary>
     [Required]
     public string AcceptUrlTemplate { get; set; } = "http://localhost:5173/invitations/accept?token={token}";
 
-    /// <summary>How long to wait before the worker treats an invitation whose email was never queued as undelivered and retries it.</summary>
+    /// <summary>How long to wait before the worker treats an invitation whose email was nvr queued as undelivered and retries it.</summary>
     [Range(10, 3600)]
     public int ReconcileAfterSeconds { get; set; } = 60;
 

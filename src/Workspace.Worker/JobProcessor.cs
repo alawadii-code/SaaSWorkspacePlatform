@@ -3,7 +3,7 @@ using Workspace.Application.Common;
 
 namespace Workspace.Worker;
 
-/// <summary>Consumes the job queue: one scope per job, retry with backoff on failure, dead-letter once attempts are exhausted.</summary>
+/// <summary>Consumes the job queue: one scope per job, retry w/ backoff on failure, dead-letter once attempts are exhausted.</summary>
 public sealed class JobProcessor(
     IJobQueueConsumer queue,
     IServiceScopeFactory scopeFactory,

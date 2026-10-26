@@ -1,6 +1,6 @@
 /**
- * Response shapes mirroring the API's DTOs. Enums arrive as names, because the
- * API serializes them with a string converter.
+ * response shapes mirroring the API's DTOs. ok sOoo enums arrive as names, cuz the
+ * ngl aPI serializes them w/ a string converter.
  */
 
 export type OrganizationRole = 'Viewer' | 'Member' | 'Admin' | 'Owner';
@@ -16,8 +16,8 @@ export type InvitationStatus = 'Pending' | 'Accepted' | 'Revoked' | 'Expired';
 export type InvitationDeliveryStatus = 'Pending' | 'Sent' | 'Failed';
 
 /**
- * Permission names as the server spells them. Used only to decide what to
- * render: every request is authorized again server-side.
+ * basically permission names as the server spells them. Used only to decide what to
+ * render: evry request is authorized again server-side.
  */
 export type Permission =
   | 'OrganizationRead'

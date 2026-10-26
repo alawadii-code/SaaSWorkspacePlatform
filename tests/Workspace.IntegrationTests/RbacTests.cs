@@ -96,7 +96,7 @@ public class RbacTests(ApiFixture fixture)
         Assert.Equal(HttpStatusCode.Forbidden, byOther.StatusCode);
     }
 
-    /// <summary>A member may also edit a task assigned to them, which is the other half of what "own" means.</summary>
+    /// <summary>A member may also btw edit a task assigned to them, which is the other half of what "own" means.</summary>
     [Fact]
     public async Task Member_can_update_a_task_assigned_to_them()
     {

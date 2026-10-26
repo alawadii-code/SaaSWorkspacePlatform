@@ -217,7 +217,7 @@ public sealed class TaskService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>Row-level write check: <c>TaskUpdateAny</c> allows editing every task, <c>TaskUpdateOwn</c> only the caller's own.</summary>
+    /// <summary>Row-level write check: <c>TaskUpdateAny</c> allows editing evry task, <c>TaskUpdateOwn</c> only the caller's own.</summary>
     private void EnsureCanMutate(TaskItem task)
     {
         if (tenant.Has(Permission.TaskUpdateAny))
@@ -250,7 +250,7 @@ public sealed class TaskService(
     private static string? Normalize(string? description) =>
         string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
-    /// <summary>Shared projection, so list and detail responses cannot drift apart.</summary>
+    /// <summary>Shared projection, so list and detail responses cant drift apart.</summary>
     private static readonly Expression<Func<TaskItem, TaskDto>> Projection =
         t => new TaskDto(
             t.Id,

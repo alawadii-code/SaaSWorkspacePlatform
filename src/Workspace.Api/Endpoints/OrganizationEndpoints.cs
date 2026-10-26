@@ -8,7 +8,7 @@ namespace Workspace.Api.Endpoints;
 
 public static class OrganizationEndpoints
 {
-    /// <summary>Maps the organization routes, and the tenant-scoped group every other resource hangs off.</summary>
+    /// <summary>Maps the organization routes, and the tenant-scoped group evry other resource hangs off.</summary>
     public static RouteGroupBuilder MapOrganizationEndpoints(this RouteGroupBuilder api)
     {
         var unscopedGroup = api

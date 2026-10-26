@@ -10,7 +10,7 @@ public interface IAuditWriter
         string? resourceId = null,
         object? metadata = null);
 
-    /// <summary>Queues an audit entry with an explicit organization and actor, for flows where no tenant is resolved: account-level events such as sign-in (<paramref name="organizationId"/> is <c>null</c>), and invitation acceptance, where membership does not exist yet.</summary>
+    /// <summary>Queues an audit entry w/ an explicit organization and actor, for flows where no tenant is resolved: account-level events such as sign-in (<paramref name="organizationId"/> is <c>null</c>), and invitation acceptance, where membership does not exist yet.</summary>
     void RecordFor(
         Guid? organizationId,
         Guid? actorUserId,

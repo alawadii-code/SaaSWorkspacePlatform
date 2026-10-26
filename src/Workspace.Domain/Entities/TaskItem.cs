@@ -30,6 +30,6 @@ public class TaskItem : Entity, ITenantOwned
 
     public User? Assignee { get; set; }
 
-    /// <summary>Whether <paramref name="userId"/> is the creator or the assignee, which is what <c>TaskUpdateOwn</c> grants for roles without <c>TaskUpdateAny</c>.</summary>
+    /// <summary>Whether <paramref name="userId"/> is the creator or the assignee, which is what <c>TaskUpdateOwn</c> grants for roles w/o <c>TaskUpdateAny</c>.</summary>
     public bool IsOwnedBy(Guid userId) => CreatedByUserId == userId || AssigneeUserId == userId;
 }

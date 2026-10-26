@@ -15,7 +15,7 @@ namespace Workspace.Api;
 
 public static class ApiServices
 {
-    /// <summary>The sample key shipped in <c>.env.example</c>.</summary>
+    /// <summary>The sample key shipped in <c>.env.eg</c>.</summary>
     public const string PlaceholderSigningKey = "replace-with-a-32-byte-minimum-random-secret";
 
     public static IServiceCollection AddApi(
@@ -100,7 +100,7 @@ public static class ApiServices
         services.AddAuthorization();
     }
 
-    /// <summary>Fails startup on configuration that is fine locally and dangerous in production.</summary>
+    /// <summary>Fails startup on configuration thatz fine locally and dangerous in production.</summary>
     private static void GuardProductionConfiguration(
         IConfiguration configuration,
         IWebHostEnvironment environment,
@@ -209,7 +209,7 @@ public static class ApiServices
         });
     }
 
-    /// <summary>Partitions limits by authenticated user when there is one, otherwise by client address, so one noisy client cannot exhaust everyone's budget.</summary>
+    /// <summary>Partitions limits by authenticated user when there is one, otherwise by client address, so one noisy client cant exhaust everyone's budget.</summary>
     private static string PartitionKey(HttpContext context) =>
         context.User.FindFirst("sub")?.Value
         ?? context.Connection.RemoteIpAddress?.ToString()

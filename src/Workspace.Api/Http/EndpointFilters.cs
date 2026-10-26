@@ -35,7 +35,7 @@ public sealed class TenantResolutionFilter : IEndpointFilter
             .Select(m => (OrganizationRole?)m.Role)
             .FirstOrDefaultAsync(context.HttpContext.RequestAborted);
 
-        // 404 rather than 403: a 403 here would confirm that the organization exists.
+        // 404 insteada 403: a 403 here wud confirm that the organization exists.
         if (role is null)
         {
             throw new NotFoundException("Organization");
@@ -47,7 +47,7 @@ public sealed class TenantResolutionFilter : IEndpointFilter
     }
 }
 
-/// <summary>Validates a request body with its FluentValidation validator before the handler runs, so handlers never see malformed input.</summary>
+/// <summary>Validates a request body w/ its FluentValidation validator before the handler runs, so handlers nvr see malformed input.</summary>
 public sealed class ValidationFilter<TRequest> : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(
@@ -62,7 +62,7 @@ public sealed class ValidationFilter<TRequest> : IEndpointFilter
                 $"Endpoint declares validation for {typeof(TRequest).Name} but has no such argument.");
         }
 
-        // Resolved from the request scope for the same reason as above.
+        // basically resolved from the request scope for the same reason as above.
         var validator = context.HttpContext.RequestServices.GetRequiredService<IValidator<TRequest>>();
 
         var result = await validator.ValidateAsync(request, context.HttpContext.RequestAborted);

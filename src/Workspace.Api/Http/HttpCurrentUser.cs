@@ -7,7 +7,7 @@ namespace Workspace.Api.Http;
 /// <summary>Reads the authenticated principal from the current HTTP request.</summary>
 public sealed class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 {
-    /// <summary>Header used to correlate a client request with server logs and audit rows.</summary>
+    /// <summary>Header used to correlate a client request w/ server logs and audit rows.</summary>
     public const string CorrelationHeader = "X-Correlation-Id";
 
     private HttpContext? Context => accessor.HttpContext;

@@ -273,7 +273,7 @@ public sealed class RedisJobQueue : IJobQueue, IJobQueueConsumer
             }
             catch (JsonException)
             {
-                // Fall through to the failure result below.
+                // Fall thru to the failure result below lol
             }
         }
 

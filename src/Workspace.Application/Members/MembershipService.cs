@@ -24,7 +24,7 @@ public sealed class MembershipService(
 
         var callerId = tenant.UserId;
 
-        // Tenant-filtered set: this can only ever see the resolved organization.
+        // tenant-filtered set: this can only ever see the resolved organization.
         var query = db.Memberships
             .Include(m => m.User)
             .AsQueryable();

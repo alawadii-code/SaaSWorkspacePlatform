@@ -18,7 +18,7 @@ public sealed record AuthResult(
 
 public sealed record UserDto(Guid Id, string Email, string DisplayName, DateTimeOffset CreatedAt);
 
-/// <summary>One organization the caller belongs to, with their effective permissions in it.</summary>
+/// <summary>One organization the caller belongs to, w/ their effective permissions in it.</summary>
 public sealed record OrganizationMembershipDto(
     Guid OrganizationId,
     string Name,

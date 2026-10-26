@@ -4,7 +4,7 @@ namespace Workspace.Api.Endpoints;
 
 public static class EndpointRegistration
 {
-    /// <summary>Maps every route.</summary>
+    /// <summary>Maps evry route.</summary>
     public static WebApplication MapWorkspaceEndpoints(this WebApplication app)
     {
         var api = app.MapGroup("/api");
@@ -27,7 +27,7 @@ public static class EndpointRegistration
             .WithSummary("Liveness probe")
             .AllowAnonymous();
 
-        // Readiness: should this instance receive traffic?
+        // readiness: shud this instance receive traffic?
         app.MapGet("/health/ready", async (HealthCheckService healthChecks, CancellationToken cancellationToken) =>
             {
                 var report = await healthChecks.CheckHealthAsync(
@@ -54,7 +54,7 @@ public static class EndpointRegistration
             .WithSummary("Readiness probe")
             .AllowAnonymous();
 
-        // OpenAPI document, generated from the endpoint metadata above.
+        // openAPI document, generated from the endpoint metadata above.
         app.MapOpenApi();
 
         app.MapGet("/", () => Results.Ok(new
